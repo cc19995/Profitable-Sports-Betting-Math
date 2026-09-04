@@ -8,10 +8,12 @@ export const metadata: Metadata = {
 };
 
 const NAV = [
+  ["Best Bet", "/best"],
+  ["Parlay Combos", "/combos"],
   ["Board", "/"],
   ["Ratings", "/ratings"],
   ["Lab", "/lab"],
-  ["Parlay", "/parlay"],
+  ["Builder", "/parlay"],
   ["Calibration", "/calibration"],
   ["Math", "/math"],
 ] as const;

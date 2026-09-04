@@ -1,5 +1,6 @@
 import { handicapMatchup, bestPlusEv } from "@/src/lib/matchup";
 import { evaluateParlay } from "@/src/lib/parlay";
+import { collectBestBets, collectParlayCombos } from "@/src/lib/picks";
 import { expectedValueFromOdds } from "@/src/lib/ev";
 import { americanToImplied, parseAmericanOdds } from "@/src/lib/odds";
 import { isLeague } from "@/src/lib/league";
@@ -79,6 +80,53 @@ async function matchup(): Promise<void> {
   }, null, 2));
 }
 
+async function best(): Promise<void> {
+  const leagueRaw = arg("league", "nfl");
+  if (!isLeague(leagueRaw)) {
+    throw new Error("league must be nfl or ncaaf");
+  }
+  const snapshot = await readSnapshot();
+  if (!snapshot) {
+    throw new Error("no snapshot.json — run npm run refresh first");
+  }
+  const pack = leagueRaw === "nfl" ? snapshot.nfl : snapshot.ncaaf;
+  const picks = collectBestBets(pack.board, 12);
+  console.log(`${leagueRaw.toUpperCase()} best bets  generated ${snapshot.generatedAt}`);
+  if (picks.length === 0) {
+    console.log("no singles cleared the trust filter");
+    return;
+  }
+  for (const [index, pick] of picks.entries()) {
+    console.log(
+      `${index + 1}. ${pick.matchup}  ${pick.pick.label}  EV=${pick.pick.evPerUnit.toFixed(3)}  P=${pick.pick.handicappedP.toFixed(3)}  S=${pick.pick.impliedS.toFixed(3)}  Q=${pick.quality.toFixed(2)}`,
+    );
+  }
+}
+
+async function combos(): Promise<void> {
+  const leagueRaw = arg("league", "nfl");
+  if (!isLeague(leagueRaw)) {
+    throw new Error("league must be nfl or ncaaf");
+  }
+  const snapshot = await readSnapshot();
+  if (!snapshot) {
+    throw new Error("no snapshot.json — run npm run refresh first");
+  }
+  const pack = leagueRaw === "nfl" ? snapshot.nfl : snapshot.ncaaf;
+  const tickets = collectParlayCombos(pack.board, { sameDateOnly: !hasFlag("any-date") });
+  console.log(`${leagueRaw.toUpperCase()} parlay combos  generated ${snapshot.generatedAt}`);
+  if (tickets.length === 0) {
+    console.log("no +EV combos from the best-bet pool");
+    return;
+  }
+  for (const [index, ticket] of tickets.entries()) {
+    const legs = ticket.legs.map((leg) => `${leg.matchup} ${leg.pick.label}`).join(" + ");
+    console.log(
+      `${index + 1}. ${legs}  EV=${ticket.evPerUnit.toFixed(3)}  P=${ticket.modelProb.toFixed(3)}  S=${ticket.impliedProb.toFixed(3)}`,
+    );
+  }
+}
+
 function price(): void {
   const p = Number(arg("p"));
   const odds = parseAmericanOdds(arg("odds"));
@@ -124,9 +172,19 @@ async function main(): Promise<void> {
     parlay();
     return;
   }
+  if (cmd === "best") {
+    await best();
+    return;
+  }
+  if (cmd === "combos") {
+    await combos();
+    return;
+  }
   console.log(`Usage:
   npm run refresh
   npm run model -- board --league nfl
+  npm run model -- best --league nfl
+  npm run model -- combos --league nfl
   npm run model -- matchup --league nfl --home SEA --away NE
   npm run model -- price --p 0.58 --odds -110
   npm run model -- parlay --legs "SEA ML:0.62:-185,Over 44.5:0.55:-105"`);

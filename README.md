@@ -12,7 +12,9 @@ Handicapping here does not pick winners. It assigns a probability **P** and comp
 - Projected score, win %, cover %, over/under %
 - Market S, de-vigged S′, juice, edge, EV/unit, quarter-Kelly
 - Matchup sheet of the stats that actually change a football price
-- +EV parlay builder that compounds only when every leg is +EV
+- Best Bet tab: one trust-adjusted single per game (raw EV monsters are filtered out)
+- Parlay Combos tab: auto-built 2- and 3-leg tickets from that pool, never two legs from the same game
+- Manual +EV parlay builder that compounds only when every leg is +EV
 - Walk-forward holdout vs closing-style lines
 
 ## Run it
@@ -28,6 +30,8 @@ CLI:
 
 ```bash
 npm run model -- board --league nfl
+npm run model -- best --league nfl
+npm run model -- combos --league nfl
 npm run model -- matchup --league nfl --home SEA --away NE
 npm run model -- price --p 0.58 --odds -110
 npm run model -- parlay --legs "SEA ML:0.62:-185,Over 44.5:0.55:-105"
@@ -35,10 +39,10 @@ npm run model -- parlay --legs "SEA ML:0.62:-185,Over 44.5:0.55:-105"
 
 ## Using the desk
 
-1. Open **Board**. Filter +EV only if you want candidates.
+1. Open **Best Bet** for ranked singles, or **Board** for the full slate.
 2. Open a matchup. Read P vs S, then the diagnostic table — especially SOS, residuals, rest, weather, and key numbers.
 3. Price the line **your book** actually offers in **Lab**. Consensus and your juice are not the same number.
-4. If you parlay, every leg must be +EV. Otherwise juice compounds against you.
+4. Open **Parlay Combos** for model-built 2- and 3-leg tickets, or **Builder** to force a ticket. Every leg must be +EV. Otherwise juice compounds against you.
 5. Stake with quarter-Kelly, not the full fraction. Variance is not optional; see the original backtest figure.
 
 ## Overfitting

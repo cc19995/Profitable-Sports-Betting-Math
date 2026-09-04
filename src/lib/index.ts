@@ -3,6 +3,7 @@ export * from "./odds";
 export * from "./ev";
 export * from "./kelly";
 export * from "./parlay";
+export * from "./picks";
 export * from "./normal";
 export * from "./league";
 export * from "./ratings";

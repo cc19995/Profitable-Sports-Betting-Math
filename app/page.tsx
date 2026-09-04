@@ -1,3 +1,5 @@
+"use client";
+
 import { BoardView } from "./components/BoardView";
 import { SnapshotLoader } from "./components/SnapshotLoader";
 

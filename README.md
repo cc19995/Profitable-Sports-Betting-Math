@@ -1,72 +1,50 @@
-# The Math of +EV Betting
+# Football +EV Desk
 
+A handicapping desk for **NFL** and **NCAA Football** that implements the +EV math in this repository.
 
-## In this Repository I present the underlying math that constitutes TRUE positive expected value betting. The concept of plus EV betting is commonly talked about amongst sports bettors and is a popular strategy for generating income from sports betting. Unfortunately many bettors fail to ever grasp the true underlying math that makes sports betting profitable. Due to this lack of understanding many bettors "sour" on +EV betting after a short time because they fail to understand the underlying objective. Here I give a short yet thorough analysis of +EV betting in the context of moneyline (selecting winners outright) betting assuming a flat betting strategy. 
+The original write-up is unchanged at [docs/PLUS_EV_MATH.md](docs/PLUS_EV_MATH.md). The model notes are at [docs/MODEL.md](docs/MODEL.md).
 
-![Definitions](Plus_ev_betting_definitions..png)
+Handicapping here does not pick winners. It assigns a probability **P** and compares it to the sportsbook implied probability **S**. Average gain per unit stake is `B(P/S − 1)`. That is positive if and only if **P > S** after juice.
 
-The Handicapped (Assigned) Probability of a Win (line 1) is the probability, we the bettors, find through some method we trust (handicapping). Some bettors rely on observational analysis in which they simply watch a lot of sports and develop a “gut feel” or “intuition” for when a team should win against their opponent. The problem with this method is that it does not allow you to actually QUANTIFY your degree of certainty. Line 2 is the binarized outcome of the bet which is simply the outcome of if we won or lost the bet. The term “binarized” just means we have two possible outcomes (i.e. we won or lost). This is how most sports bets are structured. Line 3 is the implied probability of the odds that the sportsbooks are offering us. Every set of odds has a corresponding implied probability formed by the market that represents the market’s “opinion” on what the outcome of the bet will be. P in Line 4 is the empirical win proportion at any fixed set of odds. All this means is that P represents the LONG TERM FREQUENCY we win at on a FIXED set of odds. For example if we place 700 moneyline bets and all of those bets are at -200 odds and we win 490 of those 700 bets, then our empirical win proportion = P = 490/700 = .70. Placing 700 bets may seem like an excessive amount but this is not necessarily always the number of bets needed to profit. Sometimes it's much less and sometimes it's much more. Line 5 is simply our change in bankroll. Obviously this is what we are mostly concerned about. If this is greater than zero then we are profiting from sports betting. If it is less than zero then we are losing bettors. N is the number of bets placed in any given unit of time. Earlier I gave an example of 700 bets so in that situation N = 700. For some bettors this may only be 10 and for others it may be 10,000. The main idea is that it represents a specific set of bets placed on a fixed set of sportsbooks odds. B in Line 7 is the variable for our flat bet size. Flat betting simply means we are betting the same exact amount every single time we bet. In actuality this is NOT an optimal betting strategy but it makes the math a bit easier here. Again, this varies from one bettor to another - some sports bettors have a flat bet size of $1.00 while others may have a flat bet size of $1,000. All that matters is that it's a value you are comfortable betting and can sustain long-term. Finally i in line 8 is just the index used to denote which bet out of N we are on. 
+## What you get
 
-## The Math of Profiting
+- Opponent-adjusted offensive / defensive ratings (iterative SRS with recency and shrinkage)
+- Projected score, win %, cover %, over/under %
+- Market S, de-vigged S′, juice, edge, EV/unit, quarter-Kelly
+- Matchup sheet of the stats that actually change a football price
+- +EV parlay builder that compounds only when every leg is +EV
+- Walk-forward holdout vs closing-style lines
 
-![How +EV betting works](plus_ev_betting_math.png)
+## Run it
 
-If our net change in bankroll is greater than zero we are profiting and we essentially have a positive ROI. Above we have 10 lines of math that show us how we make that happen. Rather than going through each line I would like to talk about a few key conclusions the math shows us. Line #1 comes from calculating and summing the percentage of a bet returned on a win vs a loss - the return on risk (ROR not to be confused with the ROI). In sports betting if you win a bet, your following change in bankroll comes from scaling the amount risked by the bet’s ROR and adding that value to your bankroll (ie the first term in line #1) while if you lose a bet your change in bankroll is the result of you losing the entire amount risked (the second term in line #1). For any finite number of bets we can calculate our net change in bankroll by summing these gains and losses. That is how we derive line #1. From here, everything else follows from algebra. Jumping down to line #7, here we divide the net change in bankroll by N (the number of bets placed). We show that this fraction (which is heavily correlated with ROI) can be made greater than zero. Understanding this step and the following lines is crucial to being a profitable bettor because it highlights the following: If and ONLY IF a bettor truly has an edge relative the odds they are offered by their sportsbook, can a bettor expect their bankroll to grow the more they bet. This is because on average each bet contributes to their net gain over a large enough number of bets (ie N becoming large).. 
+```bash
+npm install
+npm test
+npm run refresh    # nflverse + ESPN → data/snapshot.json
+npm run dev        # http://localhost:3000
+```
 
-### Calibration
-Line #8 shows the importance of CALIBRATION. The first term in the box is the probability given to us by our handicapping strategy. This line is required to profit and only holds true under the condition that we as sports bettors are indeed calibrated. Calibration does NOT mean being correct - instead it means if you believe there is a 30%,50%,70%...etc probability of an outcome - then the outcome indeed happens 30%,50%,70%...etc of the time. When your degree of certainty matches the empirical frequency of an event then you are calibrated. This means that our handicapping process should almost never “pick” winners but rather should quantify and measure our degree of certainty and confidence in one outcome or another. This proves that it is erroneous to say for example: “Team A will absolutely beat Team B, so taking Team A is a sharp bet”. Instead, someone who truly understands sharp betting would say, “Team A has a higher probability of beating Team B relative to the probability implied by the sportsbooks, thus Team A has VALUE”. This all implies that sometimes we should pick the heavy favorite and sometimes we should pick the underdog depending on what our handicap has told us. If you hear someone say, “you should never take a -800 favorite” or “you should never back a +900 underdog” then they are mistaken in what sports betting is truly about. Finally line 10 follows from all lines above and demonstrates that if we are indeed calibrated and avoid ruin by overbetting (i.e. bankroll management) then our average change in bankroll per bet will be greater than zero - implying that we are making money. We see that the most important task of a sharp handicapper is calculating the probability of each outcome of a bet (line 8). This is the fundamental idea of sharp betting and understanding this concept separates profitable sharp bettors from casual/”square” bettors. 
+CLI:
 
-# Why Implement a Dynamic Betting Strategy
-![Dynamic Betting](math_04_17.png)
+```bash
+npm run model -- board --league nfl
+npm run model -- matchup --league nfl --home SEA --away NE
+npm run model -- price --p 0.58 --odds -110
+npm run model -- parlay --legs "SEA ML:0.62:-185,Over 44.5:0.55:-105"
+```
 
-So far this examination of +EV betting has been in the context of implementing a flat betting strategy however as mentioned earlier this is not the optimal staking strategy for maximum ROI. Intuitively, it seems obvious but note we cannot just increase B as our edge increases in the math above because B was initialized as a fixed value/constant so arbitrarily correlating the bet size with our edge is bad math. So to see that we can safely make more by risking more we do the following: Suppose we partition all of our bets into two (k=1,2) sets. Assume the first set (where k = 1) contains only bets where we have an edge but not a significant one, while the second set (k = 2) contains only bets where our edge is much larger. For set #1 (where k=1) we’ll bet a fixed amount (B_1) and for set #2 (where k=2) we’ll bet another fixed amount (B_2) that is greater than B_1. Conveniently, almost everything remains the exact same as in the original 10 lines of math except now we can observe the effects of correlating our bet size with our edge. We see from the math above, correlating our bet size with our edge increases our average gained per bet (and thus our ROI) for two reasons: 1) because P_2 > P_1 we obviously simply win these bets outright more often, and 2) because we bet more relative to our edge our return on risk (ROR) is higher for these bets relative to the risk we are taking on! This means drawdowns are more mitigated and upswings are maximized allowing our bankroll to grow in a more efficient manner - this stems from the fact that the aggregate rate at which our bankroll changes on average per bet is greater when we risk more on bets with a higher edge and risk less when the odds are not as much in our favor. This is what the second to last line in the math above shows us. Again, it's important to recognize two things here: 1) We are not increasing our bet size relative to only our certainty or empirical win proportion, but rather to our calculated EDGE. That is our bet size is proportional to the ratio between our confidence and our ROR, not just purely one or the other, which is what many bettors mistakenly do. 2) Furthermore dynamic staking increases ROI IF AND ONLY IF you're well calibrated to begin with - simply betting larger amounts almost certainly cannot and will not overcome miscalibration and poor handicapping in the long term. This is why strategies like martingale are insufficient to achieve long-term profits. This is all in agreement with what is famously known as the Kelly Criteria staking strategy - which is a specification of what we have here. Kelly staking actually provides us with the optimal bet size to maximize long-term geometric growth. But, because Kelly under weighs the cost of ruin most bettors prefer what is known as fractional kelly. Proving this is beyond the scope of this repository.
+## Using the desk
 
+1. Open **Board**. Filter +EV only if you want candidates.
+2. Open a matchup. Read P vs S, then the diagnostic table — especially SOS, residuals, rest, weather, and key numbers.
+3. Price the line **your book** actually offers in **Lab**. Consensus and your juice are not the same number.
+4. If you parlay, every leg must be +EV. Otherwise juice compounds against you.
+5. Stake with quarter-Kelly, not the full fraction. Variance is not optional; see the original backtest figure.
 
-# Variance, Drawdowns and Upswings
-![Variance of profiting](backtest_02_24_25.png)
+## Overfitting
 
+NFL HFA and score sigma were measured on 2015–2023 home games (mean home margin 1.87, raw margin SD 14.1). Model sigma is looser than closing-line residual (~12.7) on purpose. Recency, rest, and wind are small principled adjustments. Last-4 form and residual “luck” are displayed, not auto-faded. One season of walk-forward flags is not a license to increase stake size.
 
-Above I have an image from a backtested model that shows the actual change in bankroll from applying a betting model I made in python (See nba model github). Notice that there are both drawdowns AND upswings in the net change in bankroll. Why is this, if we are doing +EV betting?? The answer is variance. Variance is the irreducible amount of randomness that is embedded in any finite set of bets. This means that sometimes we will have stretches of bets where the bankroll decreases (drawdowns) and other stretches where it increases (upswings). Luckily if we are truly betting with an edge then the quantity and magnitude of upswings will overcome the quantity and magnitude of drawdowns allowing us to make profits long-term. This is why sports betting is often referred to as “A patient man’s game.” 
+## Disclaimer
 
-# The Vigorish/Juice 
-Most sports bettors are aware of the “fee”/ “tax” that is attached to each side of a bet at a sportsbook. For example a standard -110 line on a spread bet means the sportsbooks return $1.00 for every $1.10 risked on either side of a spread. This computes to a 90.91% return on risk (ROR) embedding a 4.76% vigorish fee which is the same cost embedded in a +200 underdog facing a -250 favorite. As the vigorish increases so does S for either side of a bet in the math above. Thus profiting becomes more difficult as the vig increases. While seemingly negligible, the incremental difference between -105, -110,-115 etc compounds greatly over a large number of bets. (To see this simply plug in these respective implied probabilities into line 9 above to calculate the difference of amount gained per bet under different odds). 
-
-# The Math of Profitable Parlays
-
-There are often debates and discussions amongst sports bettors about whether placing a parlay can be a long term profitable strategy. Many bettors hear that parlays are always bad bets because they can compound the house edge against the bettor with each additional leg that is added. Below we have some definitions that help clarify the math that explains what is happening when we parlay bets.
-
-![Profitable Parlays](Parlay_definitions.png)
-
-![Profitable Parlays](Parlay_math.png)
-
-The juice becomes particularly problematic for bettors when they parlay. In the math above we see that combining multiple bets where our edge in each bet is smaller than the bet’s associated juice results in the the associated vig of each bet compounding and manifesting as an aggregate risk to payout ratio (P/S) that is even worse than any particular leg in the parlay - that is: the mathematical expectation of the entire parlay is lower than the mathematical expectation of any of its constituent legs. On the other hand, suppose each leg in the parlay is placed on the basis of a calibrated probability that is greater than what's implied by its corresponding odds (in other words each leg is +EV). Then we see the opposite effect take place. The mathematical advantage of each bet actually compounds, meaning not only does the parlay have positive mathematical expectation - but it has even greater long term value than any single leg in the parlay. Note this DOES NOT mean that we are increasing the probability of the parlay hitting by adding more legs (in fact we are doing exactly the opposite) but rather we are increasing the LONG TERM EXPECTATION of the parlay. Meaning, we have mathematical justification to place as many +EV parlays as we can effectively handicap. Again, because the risk to payout ratio (P/S) of the entire parlay is greater than the risk to payout ratio of any of its constituent bets it makes perfect sense to parlay our bets that we have an edge in. Now, because adding more legs to the parlay does still indeed reduce the overall probability of the parlay hitting - our net change in bankroll becomes more volatile as drawdowns and upswings can become far more amplified. This means that someone who chooses to frequently parlay their bets must be willing to be a bit more patient, tolerate more volatility, and place more bets (i.e. Let N become larger).
-
-
-# The Efficient Market Hypothesis in Sports Betting
-In the context of sports betting the efficient market hypothesis posits that the odds offered by the sportsbook(s) is/are always optimally efficient implying that we as gamblers, and handicappers cannot derive a more calibrated or “more correct” degree of certainty than the market (ie sportsbooks’ odds). In other words there are no inefficiencies for us as bettors to exploit. Mathematically this looks like Pr(W =1) converging to a P < S (due to the vigorish) rather than a P > S in line 10 above. This hypothesis, while theoretically plausible, is neither a mathematical nor empirical law and simply serves as an accepted framework for why the overwhelming majority of sports bettors do indeed lose money long-term. When some people claim “you cannot win money betting sports” this is the reason they are (often unknowingly) referring to. Again, handicapping is the art of overcoming the vigorish by deriving a calibrated probability that is more confident or more correct than what is implied by the odds found in the market for one side of a bet or another. 
-
-# The Difficulty of Good Handicapping.
-In the above paragraphs I somewhat skipped over talking about the actual difficulty of deriving a calibrated probability that we assign to an outcome that allows us to profit long-term (i.e. finding Pr(W = 1)). So just how difficult is good handicapping? The answer is - it varies. Some niche markets have plenty of inefficiencies that an astute bettor can easily exploit with very little effort such that even just observational handicapping will suffice to profit, while some other markets are tremendously difficult and require large databases, advanced statistical analysis, software, non-public information and an extremely deep understanding of the sport’s nuances to handicap successfully (ie NFL Playoffs, March Madness Final Four Winners, Primetime Vegas Boxing Matchups, MLB World Series etc). 
-
-
-
-## GLOSSARY:
-
-Calibration:\
-Agreement between a bettor’s degree of confidence/certainty/probability and their true empirical win proportion/ win frequency.\
-Value:\
-A bet where the handicapped probability is greater than the probability implied by your sportsbook’s odds.\
-Handicapping:\
-The process of finding a calibrated probability of each outcome of a sporting event..\
-Probability:\
-Number between 0 and 1 that corresponds to a bettor's degree of certainty in one outcome or another.\
-Empirical Win Proportion:\
-The proportion of bets won at a FIXED set of odds (e.g. number of bets won out of ALL bets placed on -200 odds).\
-Edge:\
-Handicapping process that allows a bettor to find value.\
-Variance:\
-The irreducible unavoidable randomness found in any finite number of bets that a bettor must overcome through having an edge and being calibrated.\
-Vigorish:\
-The tax/fee that sportsbooks embed in their provided odds that a bettor must overcome through having an edge.\
-\
-Disclaimer/Warning: This information does NOT serve as formal financial advice and it is not intended to entice, persuade or influence anyone to gamble/sports bet. Please bet responsibly.
+This is not financial or betting advice. It does not entice anyone to gamble. If you have a gambling problem, call 1-800-GAMBLER.

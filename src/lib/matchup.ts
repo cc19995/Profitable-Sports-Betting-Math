@@ -226,6 +226,20 @@ export function handicapMatchup(args: {
   };
 }
 
+export const TRUST_FILTER = {
+  maxEvPerUnit: 0.8,
+  minEdge: 0.025,
+  minConfidence: 40,
+  minGames: 3,
+  ncaafMoneylineAbsSpread: 10,
+} as const;
+
+export type TrustExtras = {
+  confidence?: number;
+  homeGames?: number;
+  awayGames?: number;
+};
+
 export function isActionable(
   side: PricedSide,
   market?: { homeSpread?: number; total?: number },
@@ -260,14 +274,53 @@ export function isActionable(
   return false;
 }
 
+export function isTrustEligible(
+  side: PricedSide,
+  market?: { homeSpread?: number; total?: number },
+  modelMargin?: number,
+  modelTotal?: number,
+  league?: "nfl" | "ncaaf",
+  extras?: TrustExtras,
+): boolean {
+  if (!isActionable(side, market, modelMargin, modelTotal, league)) {
+    return false;
+  }
+  if (side.edge < TRUST_FILTER.minEdge) {
+    return false;
+  }
+  if (side.evPerUnit > TRUST_FILTER.maxEvPerUnit) {
+    return false;
+  }
+  if (extras?.confidence !== undefined && extras.confidence < TRUST_FILTER.minConfidence) {
+    return false;
+  }
+  if (extras?.homeGames !== undefined && extras.homeGames < TRUST_FILTER.minGames) {
+    return false;
+  }
+  if (extras?.awayGames !== undefined && extras.awayGames < TRUST_FILTER.minGames) {
+    return false;
+  }
+  if (
+    league === "ncaaf" &&
+    side.betType === "moneyline" &&
+    Math.abs(market?.homeSpread ?? 0) >= TRUST_FILTER.ncaafMoneylineAbsSpread
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function bestPlusEv(
   priced: PricedSide[],
   market?: { homeSpread?: number; total?: number },
   modelMargin?: number,
   modelTotal?: number,
   league?: "nfl" | "ncaaf",
+  extras?: TrustExtras,
 ): PricedSide | null {
-  const plus = priced.filter((side) => isActionable(side, market, modelMargin, modelTotal, league));
+  const plus = priced.filter((side) =>
+    isTrustEligible(side, market, modelMargin, modelTotal, league, extras),
+  );
   if (plus.length === 0) {
     return null;
   }

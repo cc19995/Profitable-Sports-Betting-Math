@@ -1,7 +1,8 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { backtestFlat, type HistoricalBet } from "@/src/lib/backtest";
-import { handicapMatchup, bestPlusEv, isActionable } from "@/src/lib/matchup";
+import { handicapMatchup, isActionable } from "@/src/lib/matchup";
+import { pickQuality, selectTrustedBestBet } from "@/src/lib/picks";
 import { fitTeamRatings } from "@/src/lib/ratings";
 import type { CompletedGame, League, UpcomingGame } from "@/src/lib/types";
 import { attachRestDays, dedupeGames, fetchEspnScoreboard, fetchEspnSeason, isCompletedGame } from "./espn";
@@ -82,16 +83,21 @@ function buildBoard(args: {
     })
     .map((game) => {
       const report = handicapMatchup({ game, ratings });
+      const row = {
+        game,
+        report,
+        bestBet: null,
+      };
       return {
         game,
         report,
-        bestBet: bestPlusEv(report.priced, game.market, report.projection.margin, report.projection.total, args.league),
+        bestBet: selectTrustedBestBet(row),
       };
     })
     .sort((a, b) => {
-      const ae = a.bestBet?.evPerUnit ?? -999;
-      const be = b.bestBet?.evPerUnit ?? -999;
-      return be - ae;
+      const aq = a.bestBet ? pickQuality(a, a.bestBet) : -1;
+      const bq = b.bestBet ? pickQuality(b, b.bestBet) : -1;
+      return bq - aq;
     });
 
   return {

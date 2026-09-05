@@ -21,6 +21,16 @@ S includes juice. A side is marked +EV only when that inequality holds.
 
 NFL ratings use nflverse completed regular season and playoffs (prior two seasons plus the current year). Live NFL and all NCAA lines/scores come from ESPN public scoreboards.
 
+## Which book is S?
+
+The desk prices **one** posted number per game, not a shop:
+
+- Live NFL and all NCAAF: ESPN scoreboard `odds[0]`. On the current snapshot that provider is **DraftKings**.
+- NFL games that only have a schedule line: **nflverse closing line** (`nflverse-close`), a consensus-style close, not Hard Rock.
+- Hard Rock is not ingested.
+
+P vs S is only valid at the book that posted that S. If you bet Hard Rock, re-price the same side in Lab at Hard Rock juice. Scanning extra books is useful to see whether the market agrees with itself; it is not an edge if you cannot bet that number.
+
 ## Statistics the desk surfaces
 
 Principle-driven, not fit to last week's losers:

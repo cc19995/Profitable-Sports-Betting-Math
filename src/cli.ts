@@ -74,7 +74,18 @@ async function matchup(): Promise<void> {
   console.log(JSON.stringify({
     projection: report.projection,
     priced: report.priced,
-    bestBet: bestPlusEv(report.priced),
+    bestBet: bestPlusEv(
+      report.priced,
+      game.market,
+      report.projection.margin,
+      report.projection.total,
+      leagueRaw,
+      {
+        confidence: report.confidence.score,
+        homeGames: report.ratings.home.games,
+        awayGames: report.ratings.away.games,
+      },
+    ),
     confidence: report.confidence,
     diagnostics: report.diagnostics,
   }, null, 2));

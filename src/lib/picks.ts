@@ -1,6 +1,6 @@
 import { evaluateParlay, parlayAmericanOdds } from "./parlay";
 import { kickoffDateKey, kickoffDateLabel } from "./format";
-import { isActionable } from "./matchup";
+import { isTrustEligible } from "./matchup";
 import type { BoardRow, League, PricedSide } from "./types";
 
 export type RankedPick = {
@@ -39,11 +39,7 @@ export type RankedCombo = {
   warning?: string;
 };
 
-const MAX_EV_SINGLE = 0.8;
 const MAX_EV_PARLAY = 1.4;
-const MIN_EDGE = 0.025;
-const MIN_CONFIDENCE = 40;
-const MIN_GAMES = 3;
 
 function evSanity(evPerUnit: number): number {
   const evPct = evPerUnit * 100;
@@ -90,31 +86,26 @@ function alignmentScore(row: BoardRow, pick: PricedSide): number {
 }
 
 export function isBestBetEligible(row: BoardRow, pick: PricedSide): boolean {
-  if (
-    !isActionable(
-      pick,
-      row.game.market,
-      row.report.projection.margin,
-      row.report.projection.total,
-      row.game.league,
-    )
-  ) {
-    return false;
+  return isTrustEligible(
+    pick,
+    row.game.market,
+    row.report.projection.margin,
+    row.report.projection.total,
+    row.game.league,
+    {
+      confidence: row.report.confidence.score,
+      homeGames: row.report.ratings.home.games,
+      awayGames: row.report.ratings.away.games,
+    },
+  );
+}
+
+export function selectTrustedBestBet(row: BoardRow): PricedSide | null {
+  const eligible = row.report.priced.filter((pick) => isBestBetEligible(row, pick));
+  if (eligible.length === 0) {
+    return null;
   }
-  if (pick.edge < MIN_EDGE) return false;
-  if (pick.evPerUnit > MAX_EV_SINGLE) return false;
-  if (row.report.confidence.score < MIN_CONFIDENCE) return false;
-  if (row.report.ratings.home.games < MIN_GAMES || row.report.ratings.away.games < MIN_GAMES) {
-    return false;
-  }
-  if (
-    row.game.league === "ncaaf" &&
-    pick.betType === "moneyline" &&
-    Math.abs(row.game.market?.homeSpread ?? 0) >= 10
-  ) {
-    return false;
-  }
-  return true;
+  return eligible.reduce((best, pick) => (pickQuality(row, pick) > pickQuality(row, best) ? pick : best));
 }
 
 export function pickQuality(row: BoardRow, pick: PricedSide): number {

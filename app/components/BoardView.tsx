@@ -40,9 +40,11 @@ export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
         <div>
           <h1 className="text-2xl font-semibold">Matchup board</h1>
           <p className="mute text-sm max-w-3xl">
-            Recommended sides require P &gt; S after juice and a real projection gap
-            (about 2.5 pts on the spread or 3.5 on the total). The desk will not shop all six
-            numbers on a game or recommend huge-dog moneylines.
+            Recommended sides require P &gt; S after juice, a real projection gap
+            (about 2.5 pts on the spread or 3.5 on the total), and the same trust
+            filter as Best Bet. Raw-EV moneylines that fight the market are not
+            the board pick. Prices are the ESPN/DraftKings (or nflverse close)
+            number on the snapshot, not a Hard Rock shop.
           </p>
         </div>
         <div className="text-right text-xs mute">
@@ -186,7 +188,9 @@ export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
                           <div className="mute text-xs">{best.betType}</div>
                         </div>
                       ) : (
-                        <span className="mute">no +EV side</span>
+                        <span className="mute">
+                          {row.report.priced.some((side) => side.plusEv) ? "no trusted side" : "no +EV side"}
+                        </span>
                       )}
                     </td>
                     <td className="px-3 py-2 text-right num">

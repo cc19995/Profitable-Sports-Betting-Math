@@ -6,6 +6,7 @@ import {
   collectEligiblePicks,
   isBestBetEligible,
   pickQuality,
+  selectTrustedBestBet,
 } from "../src/lib/picks";
 import type { BoardRow, MarketLines, PricedSide, ScoreProjection, TeamRating } from "../src/lib/types";
 
@@ -171,6 +172,34 @@ describe("best-bet eligibility", () => {
     });
     expect(isBestBetEligible(view, pick)).toBe(true);
     expect(pickQuality(view, pick)).toBeGreaterThan(1);
+  });
+
+  it("selects the trusted spread instead of a raw-EV moneyline as the board pick", () => {
+    const moneyline = priced({
+      label: "TOL ML",
+      betType: "moneyline",
+      side: "away",
+      americanOdds: 320,
+      handicappedP: 0.636,
+      impliedS: 0.238,
+    });
+    const spread = priced({
+      label: "TOL +10",
+      betType: "spread",
+      side: "away",
+      handicappedP: 0.814,
+    });
+    const view = row({
+      league: "ncaaf",
+      home: "MSU",
+      away: "TOL",
+      priced: [moneyline, spread],
+      margin: -6,
+      market: { homeSpread: -10, total: 47.5 },
+    });
+    expect(isBestBetEligible(view, moneyline)).toBe(false);
+    expect(isBestBetEligible(view, spread)).toBe(true);
+    expect(selectTrustedBestBet(view)?.label).toBe("TOL +10");
   });
 
   it("ranks a market-aligned edge above a huge disagreement with flashy EV", () => {

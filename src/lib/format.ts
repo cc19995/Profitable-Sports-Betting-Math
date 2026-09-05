@@ -28,12 +28,35 @@ export function evPct(value: number | undefined): string {
   return `${sign}${(value * 100).toFixed(1)}%`;
 }
 
-export function kickoffLabel(iso: string): string {
+/** Desk clock: Eastern Time, not the server or browser zone. */
+export const DISPLAY_TIME_ZONE = "America/New_York";
+
+function parseIso(iso: string): Date | null {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function easternDateParts(iso: string): Intl.DateTimeFormatPart[] | null {
+  const date = parseIso(iso);
+  if (!date) {
+    return null;
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: DISPLAY_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+  }).formatToParts(date);
+}
+
+export function kickoffLabel(iso: string): string {
+  const date = parseIso(iso);
+  if (!date) {
     return iso;
   }
   return date.toLocaleString("en-US", {
+    timeZone: DISPLAY_TIME_ZONE,
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -43,26 +66,34 @@ export function kickoffLabel(iso: string): string {
   });
 }
 
-/** Local calendar day for a kickoff, matching what `kickoffLabel` displays. */
+/** Eastern calendar day for a kickoff, matching what `kickoffLabel` displays. */
 export function kickoffDateKey(iso: string): string | null {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
+  const parts = easternDateParts(iso);
+  if (!parts) {
     return null;
   }
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+  if (!year || !month || !day) {
+    return null;
+  }
   return `${year}-${month}-${day}`;
 }
 
 export function kickoffDateLabel(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
+  const date = parseIso(iso);
+  if (!date) {
     return iso;
   }
   return date.toLocaleDateString("en-US", {
+    timeZone: DISPLAY_TIME_ZONE,
     weekday: "short",
     month: "short",
     day: "numeric",
   });
+}
+
+export function snapshotClockLabel(iso: string): string {
+  return kickoffLabel(iso);
 }

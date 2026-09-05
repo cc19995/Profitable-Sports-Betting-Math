@@ -1,22 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { kickoffDateKey, kickoffDateLabel } from "@/src/lib/format";
+import { kickoffDateKey, kickoffDateLabel, kickoffLabel } from "@/src/lib/format";
 
 describe("kickoff date keys", () => {
-  it("returns a local YYYY-MM-DD key for a valid kickoff", () => {
-    const iso = "2026-09-10T00:20:00Z";
-    const key = kickoffDateKey(iso);
-    const expected = (() => {
-      const date = new Date(iso);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    })();
-    expect(key).toBe(expected);
-    expect(kickoffDateLabel(iso)).toMatch(/Sep/);
+  it("pins a late Saturday Eastern kickoff to Saturday, not Sunday UTC", () => {
+    const iso = "2026-09-06T02:30:00.000Z";
+    expect(kickoffDateKey(iso)).toBe("2026-09-05");
+    expect(kickoffDateLabel(iso)).toBe("Sat, Sep 5");
+    expect(kickoffLabel(iso)).toBe("Sat, Sep 5, 10:30 PM EDT");
+  });
+
+  it("maps a 6:00 PM Eastern Saturday kickoff to Sep 5", () => {
+    const iso = "2026-09-05T22:00:00.000Z";
+    expect(kickoffDateKey(iso)).toBe("2026-09-05");
+    expect(kickoffLabel(iso)).toBe("Sat, Sep 5, 6:00 PM EDT");
+  });
+
+  it("uses EST after daylight saving ends", () => {
+    const iso = "2026-01-11T01:00:00.000Z";
+    expect(kickoffDateKey(iso)).toBe("2026-01-10");
+    expect(kickoffLabel(iso)).toBe("Sat, Jan 10, 8:00 PM EST");
   });
 
   it("returns null for an invalid timestamp", () => {
     expect(kickoffDateKey("not-a-date")).toBeNull();
+    expect(kickoffLabel("not-a-date")).toBe("not-a-date");
+    expect(kickoffDateLabel("not-a-date")).toBe("not-a-date");
   });
 });

@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { ModelSnapshot } from "@/src/data/snapshot";
 import type { League } from "@/src/lib/types";
 import { collectParlayCombos, filterBoardByDate } from "@/src/lib/picks";
-import { american, evPct, kickoffLabel, pct } from "@/src/lib/format";
+import { american, evPct, kickoffLabel, pct, snapshotClockLabel } from "@/src/lib/format";
 import { DeskFilters } from "./DeskFilters";
 
 export function CombosView({ snapshot }: { snapshot: ModelSnapshot }) {
@@ -40,7 +40,7 @@ export function CombosView({ snapshot }: { snapshot: ModelSnapshot }) {
           </p>
         </div>
         <div className="text-right text-xs mute">
-          <div>Snapshot {new Date(snapshot.generatedAt).toLocaleString()}</div>
+          <div>Snapshot {snapshotClockLabel(snapshot.generatedAt)}</div>
           <div>
             {combos.length} combo{combos.length === 1 ? "" : "s"}
             {pack.backtest

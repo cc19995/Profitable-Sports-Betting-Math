@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { ModelSnapshot } from "@/src/data/snapshot";
 import type { League } from "@/src/lib/types";
 import { collectBestBets, filterBoardByDate } from "@/src/lib/picks";
-import { american, evPct, kickoffLabel, pct, pts } from "@/src/lib/format";
+import { american, evPct, kickoffLabel, pct, pts, snapshotClockLabel } from "@/src/lib/format";
 import { DeskFilters } from "./DeskFilters";
 
 export function BestBetsView({ snapshot }: { snapshot: ModelSnapshot }) {
@@ -29,7 +29,7 @@ export function BestBetsView({ snapshot }: { snapshot: ModelSnapshot }) {
           </p>
         </div>
         <div className="text-right text-xs mute">
-          <div>Snapshot {new Date(snapshot.generatedAt).toLocaleString()}</div>
+          <div>Snapshot {snapshotClockLabel(snapshot.generatedAt)}</div>
           <div>
             {pack.completedCount} completed games in ratings · {picks.length} singles
             {pack.backtest

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { League } from "@/src/lib/types";
 import type { ModelSnapshot } from "@/src/data/snapshot";
-import { american, evPct, kickoffDateKey, kickoffDateLabel, kickoffLabel, pct, pts } from "@/src/lib/format";
+import { american, evPct, kickoffDateKey, kickoffDateLabel, kickoffLabel, pct, pts, snapshotClockLabel } from "@/src/lib/format";
 
 export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
   const [league, setLeague] = useState<League>("nfl");
@@ -48,7 +48,7 @@ export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
           </p>
         </div>
         <div className="text-right text-xs mute">
-          <div>Snapshot {new Date(snapshot.generatedAt).toLocaleString()}</div>
+          <div>Snapshot {snapshotClockLabel(snapshot.generatedAt)}</div>
           <div>
             {pack.completedCount} completed games in ratings · {pack.upcomingCount} priced
             {pack.backtest

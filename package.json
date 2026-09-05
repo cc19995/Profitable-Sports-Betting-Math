@@ -4,9 +4,9 @@
   "private": true,
   "description": "Calibrated NFL / NCAA football handicapping model implementing +EV math: P vs S, juice, Kelly, and parlays.",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

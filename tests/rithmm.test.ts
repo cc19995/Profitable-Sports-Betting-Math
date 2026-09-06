@@ -75,13 +75,62 @@ describe("factor scoring", () => {
 
 describe("as-of week does not leak", () => {
   it("uses through_week = game week minus one for CFB", () => {
-    const rows = [
-      { season: 2025, throughWeek: 2, teamId: "24", name: "ASU", games: 2, passOff: 0.1, rushOff: 0, passDef: 0, rushDef: 0, offEpa: 0.1, defEpa: 0, netEpa: 0.1, pace: 70 },
-      { season: 2025, throughWeek: 3, teamId: "24", name: "ASU", games: 3, passOff: 0.4, rushOff: 0, passDef: 0, rushDef: 0, offEpa: 0.4, defEpa: 0, netEpa: 0.4, pace: 70 },
-    ];
-    const selected = selectCfbSlice(rows, 2025, 3);
+    const week2 = Array.from({ length: 40 }, (_, i) => ({
+      season: 2025,
+      throughWeek: 2,
+      teamId: String(i),
+      name: `Team ${i}`,
+      games: 2,
+      passOff: 0.1,
+      rushOff: 0,
+      passDef: 0,
+      rushDef: 0,
+      offEpa: 0.1,
+      defEpa: 0,
+      netEpa: 0.1,
+      pace: 70,
+    }));
+    const week3 = week2.map((row) => ({ ...row, throughWeek: 3, games: 3, offEpa: 0.4 }));
+    const selected = selectCfbSlice([...week2, ...week3], 2025, 3);
     expect(selected.asOfWeek).toBe(2);
     expect(selected.slice[0]?.offEpa).toBe(0.1);
+  });
+
+  it("skips a stub CFB season and uses the last full prior week", () => {
+    const prior = Array.from({ length: 40 }, (_, i) => ({
+      season: 2025,
+      throughWeek: 16,
+      teamId: String(i),
+      name: `Team ${i}`,
+      games: 12,
+      passOff: 0.1,
+      rushOff: 0,
+      passDef: 0,
+      rushDef: 0,
+      offEpa: 0.1,
+      defEpa: 0,
+      netEpa: 0.1,
+      pace: 70,
+    }));
+    const stub = [{
+      season: 2026,
+      throughWeek: 15,
+      teamId: "9",
+      name: "Arizona State",
+      games: 2,
+      passOff: 0,
+      rushOff: 0,
+      passDef: 0,
+      rushDef: 0,
+      offEpa: 0,
+      defEpa: 0,
+      netEpa: 0,
+      pace: 62,
+    }];
+    const selected = selectCfbSlice([...prior, ...stub], 2026, 2);
+    expect(selected.asOfSeason).toBe(2025);
+    expect(selected.asOfWeek).toBe(16);
+    expect(selected.slice.length).toBe(40);
   });
 
   it("excludes the current NFL week from the aggregate", () => {

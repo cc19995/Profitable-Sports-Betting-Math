@@ -70,6 +70,7 @@ function buildBoard(args: {
   upcoming: UpcomingGame[];
   completed: CompletedGame[];
   factorStore?: FactorStore;
+  priceWithHouse?: boolean;
 }): LeagueSnapshot {
   const ratings = fitTeamRatings(args.completed, args.league);
   const rated = new Map(ratings.map((row) => [row.team.id, row]));
@@ -89,7 +90,12 @@ function buildBoard(args: {
       );
     })
     .map((game) => {
-      const report = handicapMatchup({ game, ratings, factorLookup });
+      const report = handicapMatchup({
+        game,
+        ratings,
+        factorLookup,
+        priceWithHouse: args.priceWithHouse,
+      });
       const row = {
         game,
         report,
@@ -177,13 +183,23 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
     upcoming: upcomingOnly(all),
     completed: completedOnly(all),
     factorStore,
+    priceWithHouse: false,
   });
   snapshot.backtest = summarizeWalkForward(
     walkForwardBets(completedOnly(all), "ncaaf", {
       holdoutSeason,
       pick: "profit",
       minTeamGames: 6,
+    }),
+    { holdoutSeason, pickRule: "srs-profit" },
+  );
+  snapshot.houseBacktest = summarizeWalkForward(
+    walkForwardBets(completedOnly(all), "ncaaf", {
+      holdoutSeason,
+      pick: "profit",
+      minTeamGames: 6,
       factorLookup: factorStore?.lookup,
+      priceWithHouse: true,
     }),
     { holdoutSeason, pickRule: "house-epa-profit" },
   );

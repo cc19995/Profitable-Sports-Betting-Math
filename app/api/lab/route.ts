@@ -5,6 +5,7 @@ import { evaluateParlay } from "@/src/lib/parlay";
 import { expectedValueFromOdds } from "@/src/lib/ev";
 import { parseAmericanOdds } from "@/src/lib/odds";
 import { readSnapshot } from "@/src/data/loadSnapshot";
+import { indexFactors, lookupFactors } from "@/src/lib/rithmm/store";
 import type { HouseWeights } from "@/src/lib/rithmm/types";
 import type { MarketLines } from "@/src/lib/types";
 
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
     if (!home || !away) {
       return NextResponse.json({ error: "unknown team id" }, { status: 404 });
     }
-    const factorBook = pack.factorBook ?? [];
+    const factorBook = indexFactors(pack.factorBook ?? []);
     const report = handicapMatchup({
       game: {
         id: `lab:${away.team.id}@${home.team.id}`,
@@ -87,8 +88,7 @@ export async function POST(request: Request) {
       userHome: body.userHome,
       userAway: body.userAway,
       houseWeights: body.houseWeights,
-      factorLookup: (teamId) =>
-        factorBook.find((row) => row.teamId === teamId || row.abbreviation === teamId),
+      factorLookup: (teamId) => lookupFactors(factorBook, teamId),
     });
     return NextResponse.json(report);
   } catch (error) {

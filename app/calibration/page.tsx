@@ -10,8 +10,9 @@ export default function CalibrationPage() {
     <SnapshotLoader>
       {(snapshot) => {
         const tests = [
-          { label: "NFL walk-forward", summary: snapshot.nfl.backtest },
-          { label: "NCAAF walk-forward", summary: snapshot.ncaaf.backtest },
+          { label: "NFL House EPA", summary: snapshot.nfl.backtest },
+          { label: "NCAAF live (SRS + profit gate)", summary: snapshot.ncaaf.backtest },
+          { label: "NCAAF House EPA (research)", summary: snapshot.ncaaf.houseBacktest },
         ];
         return (
           <div className="space-y-6">
@@ -20,11 +21,9 @@ export default function CalibrationPage() {
               <p className="mute text-sm max-w-3xl">
                 Calibration means if the model says 30%, the event happens 30% of the time. The
                 walk-forward below fits ratings on prior games only, then prices the next week
-                against closing-style lines. Both leagues use the same profit rule: no moneylines,
-                aligned spreads and totals only. The live desk only offers NCAAF. NFL stay-out is
-                because that same rule lost money in 2024 and 2025 holdouts — those numbers stay
-                on this page so the sit is auditable, not hidden. NCAAF holdout is the prior
-                completed season vs ESPN BET closes.
+                against closing-style lines. NCAAF live tickets still use the SRS + profit gate
+                that made money in holdout. House EPA is the Rithmm-style research engine; it is
+                not the live book until its own holdout is positive. NFL House is shown and sat.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">

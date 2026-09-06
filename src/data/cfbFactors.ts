@@ -62,6 +62,30 @@ async function loadSeasonSummaries(season: number): Promise<CfbWeekRow[]> {
   return rows;
 }
 
+const MIN_SLICE_TEAMS = 40;
+
+function latestUsableWeek(rows: CfbWeekRow[], season: number): number {
+  const counts = new Map<number, number>();
+  for (const row of rows) {
+    if (row.season !== season || row.games <= 0) {
+      continue;
+    }
+    counts.set(row.throughWeek, (counts.get(row.throughWeek) ?? 0) + 1);
+  }
+  let bestWeek = 0;
+  let bestCount = 0;
+  for (const [week, count] of counts) {
+    if (count < MIN_SLICE_TEAMS) {
+      continue;
+    }
+    if (count > bestCount || (count === bestCount && week > bestWeek)) {
+      bestWeek = week;
+      bestCount = count;
+    }
+  }
+  return bestWeek;
+}
+
 function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): TeamFactors[] {
   const passOff = new Map<string, number>();
   const rushOff = new Map<string, number>();
@@ -120,14 +144,26 @@ export function selectCfbSlice(
   week: number,
 ): { slice: CfbWeekRow[]; asOfSeason: number; asOfWeek: number } {
   const targetWeek = week - 1;
-  const current = rows.filter((row) => row.season === season && row.throughWeek === targetWeek && targetWeek > 0);
-  if (current.length > 0) {
+  const current = rows.filter(
+    (row) =>
+      row.season === season &&
+      row.throughWeek === targetWeek &&
+      targetWeek > 0 &&
+      row.games > 0,
+  );
+  if (current.length >= MIN_SLICE_TEAMS) {
     return { slice: current, asOfSeason: season, asOfWeek: targetWeek };
   }
+  const currentMax = latestUsableWeek(rows, season);
+  if (currentMax > 0 && week > currentMax) {
+    const latest = rows.filter((row) => row.season === season && row.throughWeek === currentMax && row.games > 0);
+    if (latest.length > 0) {
+      return { slice: latest, asOfSeason: season, asOfWeek: currentMax };
+    }
+  }
   const priorSeason = season - 1;
-  const priorWeeks = rows.filter((row) => row.season === priorSeason).map((row) => row.throughWeek);
-  const priorMax = priorWeeks.length > 0 ? Math.max(...priorWeeks) : 0;
-  const prior = rows.filter((row) => row.season === priorSeason && row.throughWeek === priorMax);
+  const priorMax = latestUsableWeek(rows, priorSeason);
+  const prior = rows.filter((row) => row.season === priorSeason && row.throughWeek === priorMax && row.games > 0);
   return { slice: prior, asOfSeason: priorSeason, asOfWeek: priorMax };
 }
 
@@ -149,9 +185,8 @@ export async function loadCfbFactorStore(seasons: number[]): Promise<FactorStore
     return built;
   };
   const latestSeason = Math.max(...seasons);
-  const latestWeekInSeason =
-    rows.filter((row) => row.season === latestSeason).reduce((max, row) => Math.max(max, row.throughWeek), 0) + 1;
-  const latestRows = snapshot(latestSeason, Math.max(latestWeekInSeason, 1));
+  const usable = latestUsableWeek(rows, latestSeason);
+  const latestRows = snapshot(latestSeason, usable > 0 ? usable + 1 : 1);
   const latestIndex = indexFactors(latestRows);
 
   return {

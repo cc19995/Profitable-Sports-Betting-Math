@@ -67,6 +67,7 @@ export function handicapMatchup(args: {
   marketOverride?: MarketLines;
   factorLookup?: FactorLookup;
   houseWeights?: HouseWeights;
+  priceWithHouse?: boolean;
 }): MatchupReport {
   const home = ratingById(args.ratings, args.game.home.id);
   const away = ratingById(args.ratings, args.game.away.id);
@@ -86,10 +87,15 @@ export function handicapMatchup(args: {
     userAway: args.userAway,
   });
 
-  const homeFactors = args.factorLookup?.(args.game.home.id, args.game.season, args.game.week);
-  const awayFactors = args.factorLookup?.(args.game.away.id, args.game.season, args.game.week);
+  const homeFactors = args.factorLookup?.(args.game.home.id, args.game.season, args.game.week) ??
+    args.factorLookup?.(args.game.home.abbreviation, args.game.season, args.game.week) ??
+    args.factorLookup?.(args.game.home.name, args.game.season, args.game.week);
+  const awayFactors = args.factorLookup?.(args.game.away.id, args.game.season, args.game.week) ??
+    args.factorLookup?.(args.game.away.abbreviation, args.game.season, args.game.week) ??
+    args.factorLookup?.(args.game.away.name, args.game.season, args.game.week);
   const canUseHouse = Boolean(homeFactors && awayFactors);
-  const scores = canUseHouse && homeFactors && awayFactors
+  const priceWithHouse = args.priceWithHouse !== false && canUseHouse;
+  const scores = priceWithHouse && homeFactors && awayFactors
     ? projectHouseScores({
         home: homeFactors,
         away: awayFactors,
@@ -265,7 +271,7 @@ export function handicapMatchup(args: {
     priced,
     diagnostics,
     confidence: confidenceReport({ home, away, game: args.game }),
-    engine: scores.engine,
+    engine: priceWithHouse ? "house-epa" : "srs-fallback",
     houseWeights: canUseHouse ? (args.houseWeights ?? getHouseModel(args.game.league).weights) : undefined,
     factors: homeFactors && awayFactors ? { home: homeFactors, away: awayFactors } : undefined,
     signals: uniqueSignals,

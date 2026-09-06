@@ -14,6 +14,7 @@ export interface LeagueSnapshot {
   completedCount: number;
   upcomingCount: number;
   backtest?: BacktestSummary;
+  houseBacktest?: BacktestSummary;
   factorBook?: TeamFactors[];
   houseModel?: HouseModel;
 }

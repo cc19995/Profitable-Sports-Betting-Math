@@ -13,6 +13,7 @@ export type WalkForwardOptions = {
   minTeamGames?: number;
   pick?: WalkForwardPick;
   factorLookup?: FactorLookup;
+  priceWithHouse?: boolean;
 };
 
 export type SideResult = "W" | "L" | "P";
@@ -68,12 +69,14 @@ function pickSide(args: {
   ratings: ReturnType<typeof fitTeamRatings>;
   pick: WalkForwardPick;
   factorLookup?: FactorLookup;
+  priceWithHouse?: boolean;
 }): { side: PricedSide; alignment: number } | null {
   const upcoming: UpcomingGame = { ...args.game };
   const report = handicapMatchup({
     game: upcoming,
     ratings: args.ratings,
     factorLookup: args.factorLookup,
+    priceWithHouse: args.priceWithHouse,
   });
   const row = { game: upcoming, report, bestBet: null };
   const side =
@@ -127,7 +130,14 @@ export function walkForwardBets(
       if (!home || !away || home.games < minTeamGames || away.games < minTeamGames || !game.market) {
         continue;
       }
-      const picked = pickSide({ game, league, ratings, pick, factorLookup: options.factorLookup });
+      const picked = pickSide({
+        game,
+        league,
+        ratings,
+        pick,
+        factorLookup: options.factorLookup,
+        priceWithHouse: options.priceWithHouse,
+      });
       if (!picked) {
         continue;
       }

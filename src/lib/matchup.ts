@@ -6,6 +6,10 @@ import { getLeagueConstants } from "./league";
 import { americanToImplied, assertFiniteNumber, devigTwoWay } from "./odds";
 import { expectedScores, ratingById } from "./ratings";
 import { buildDiagnostics, confidenceReport } from "./features";
+import { getHouseModel } from "./rithmm/house";
+import { projectHouseScores } from "./rithmm/project";
+import { alignmentFromGaps, houseSignals } from "./rithmm/signals";
+import type { FactorLookup, HouseWeights, TeamFactors } from "./rithmm/types";
 import type {
   CompletedGame,
   MarketLines,
@@ -61,6 +65,8 @@ export function handicapMatchup(args: {
   userHome?: number;
   userAway?: number;
   marketOverride?: MarketLines;
+  factorLookup?: FactorLookup;
+  houseWeights?: HouseWeights;
 }): MatchupReport {
   const home = ratingById(args.ratings, args.game.home.id);
   const away = ratingById(args.ratings, args.game.away.id);
@@ -80,18 +86,32 @@ export function handicapMatchup(args: {
     userAway: args.userAway,
   });
 
-  const scores = expectedScores({
-    home,
-    away,
-    league: args.game.league,
-    neutralSite: args.game.neutralSite,
-    restAdjustment: adjustments.rest,
-    weatherTotalAdjustment: adjustments.weatherTotal,
-    qbHome: adjustments.qbHome,
-    qbAway: adjustments.qbAway,
-    userHome: adjustments.userHome,
-    userAway: adjustments.userAway,
-  });
+  const homeFactors = args.factorLookup?.(args.game.home.id, args.game.season, args.game.week);
+  const awayFactors = args.factorLookup?.(args.game.away.id, args.game.season, args.game.week);
+  const canUseHouse = Boolean(homeFactors && awayFactors);
+  const scores = canUseHouse && homeFactors && awayFactors
+    ? projectHouseScores({
+        home: homeFactors,
+        away: awayFactors,
+        league: args.game.league,
+        adjustments,
+        weights: args.houseWeights,
+      })
+    : {
+        ...expectedScores({
+          home,
+          away,
+          league: args.game.league,
+          neutralSite: args.game.neutralSite,
+          restAdjustment: adjustments.rest,
+          weatherTotalAdjustment: adjustments.weatherTotal,
+          qbHome: adjustments.qbHome,
+          qbAway: adjustments.qbAway,
+          userHome: adjustments.userHome,
+          userAway: adjustments.userAway,
+        }),
+        engine: "srs-fallback" as const,
+      };
 
   const margin = scores.homeScore - scores.awayScore;
   const total = scores.homeScore + scores.awayScore;
@@ -202,6 +222,11 @@ export function handicapMatchup(args: {
     adjustments,
     market,
   });
+  if (homeFactors && awayFactors) {
+    diagnostics.unshift(
+      ...factorDiagnosticRows(homeFactors, awayFactors),
+    );
+  }
   const keyNote = keyNumberNote(market?.homeSpread);
   if (keyNote) {
     diagnostics.unshift({
@@ -214,6 +239,23 @@ export function handicapMatchup(args: {
     });
   }
 
+  const spreadGap =
+    market?.homeSpread !== undefined ? projection.margin + market.homeSpread : undefined;
+  const totalGap = market?.total !== undefined ? projection.total - market.total : undefined;
+  const signals =
+    homeFactors && awayFactors
+      ? priced.flatMap((pick) =>
+          houseSignals({
+            league: args.game.league,
+            home: homeFactors,
+            away: awayFactors,
+            pick,
+            alignment: alignmentFromGaps({ betType: pick.betType, spreadGap, totalGap }),
+          }),
+        )
+      : [];
+  const uniqueSignals = [...new Map(signals.map((signal) => [signal.id, signal])).values()];
+
   return {
     game: args.game,
     projection,
@@ -223,7 +265,30 @@ export function handicapMatchup(args: {
     priced,
     diagnostics,
     confidence: confidenceReport({ home, away, game: args.game }),
+    engine: scores.engine,
+    houseWeights: canUseHouse ? (args.houseWeights ?? getHouseModel(args.game.league).weights) : undefined,
+    factors: homeFactors && awayFactors ? { home: homeFactors, away: awayFactors } : undefined,
+    signals: uniqueSignals,
   };
+}
+
+function factorDiagnosticRows(home: TeamFactors, away: TeamFactors) {
+  const row = (key: string, label: string, hv: string, av: string, note: string) => ({
+    key,
+    label,
+    homeValue: hv,
+    awayValue: av,
+    note,
+    bettingRelevance: "Rithmm-style house factor. 50 is league average; higher is better.",
+  });
+  return [
+    row("engine", "Model engine", home.source, away.source, "House EPA model when both clubs have factor cards; SRS only as fallback."),
+    row("factorPass", "Passing", `${home.passing.offense.toFixed(0)} / def ${home.passing.defense.toFixed(0)}`, `${away.passing.offense.toFixed(0)} / def ${away.passing.defense.toFixed(0)}`, "Pass EPA / CPOE vs opponent pass suppression."),
+    row("factorRun", "Running", `${home.running.offense.toFixed(0)} / def ${home.running.defense.toFixed(0)}`, `${away.running.offense.toFixed(0)} / def ${away.running.defense.toFixed(0)}`, "Rush EPA vs opponent rush suppression."),
+    row("factorOff", "Offense", home.offense.toFixed(0), away.offense.toFixed(0), "Overall offensive efficiency."),
+    row("factorDef", "Defense", home.defense.toFixed(0), away.defense.toFixed(0), "Overall defensive efficiency. Higher is better."),
+    row("factorRank", "Ranks", home.ranks.toFixed(0), away.ranks.toFixed(0), "Opponent-adjusted net rank, 0-100."),
+  ];
 }
 
 export const TRUST_FILTER = {

@@ -23,9 +23,9 @@ export function BestBetsView({ snapshot }: { snapshot: ModelSnapshot }) {
         <div>
           <h1 className="text-2xl font-semibold">Best bets</h1>
           <p className="mute text-sm max-w-3xl">
-            NCAAF only. One recommended single per game: aligned spreads and totals that
-            still clear juice. NFL is sat — the same profit rule lost money in two holdout
-            seasons. Holdout is on /calibration. Still variance, not a lock.
+            NCAAF House model only. One recommended single per game from the EPA factor
+            engine (Running / Passing / Offense / Defense / Ranks). NFL is sat until that
+            House holdout is positive. DTM is P minus S. Still variance, not a lock.
           </p>
         </div>
         <div className="text-right text-xs mute">

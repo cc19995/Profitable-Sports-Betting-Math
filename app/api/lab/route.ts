@@ -5,6 +5,7 @@ import { evaluateParlay } from "@/src/lib/parlay";
 import { expectedValueFromOdds } from "@/src/lib/ev";
 import { parseAmericanOdds } from "@/src/lib/odds";
 import { readSnapshot } from "@/src/data/loadSnapshot";
+import type { HouseWeights } from "@/src/lib/rithmm/types";
 import type { MarketLines } from "@/src/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,7 @@ interface LabBody {
   userHome?: number;
   userAway?: number;
   market?: MarketLines;
+  houseWeights?: HouseWeights;
   p?: number;
   odds?: number | string;
   legs?: Array<{ label: string; p: number; americanOdds: number }>;
@@ -65,12 +67,13 @@ export async function POST(request: Request) {
     if (!home || !away) {
       return NextResponse.json({ error: "unknown team id" }, { status: 404 });
     }
+    const factorBook = pack.factorBook ?? [];
     const report = handicapMatchup({
       game: {
         id: `lab:${away.team.id}@${home.team.id}`,
         league,
         season: new Date().getUTCFullYear(),
-        week: 0,
+        week: 99,
         gameType: "LAB",
         kickoffIso: new Date().toISOString(),
         home: home.team,
@@ -83,6 +86,9 @@ export async function POST(request: Request) {
       qbAway: body.qbAway,
       userHome: body.userHome,
       userAway: body.userAway,
+      houseWeights: body.houseWeights,
+      factorLookup: (teamId) =>
+        factorBook.find((row) => row.teamId === teamId || row.abbreviation === teamId),
     });
     return NextResponse.json(report);
   } catch (error) {

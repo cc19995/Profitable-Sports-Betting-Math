@@ -2,6 +2,7 @@ import { backtestFlat, type HistoricalBet } from "./backtest";
 import { handicapMatchup, isActionable } from "./matchup";
 import { alignmentScore, selectProfitBestBet, selectTrustedBestBet } from "./picks";
 import { fitTeamRatings } from "./ratings";
+import type { FactorLookup } from "./rithmm/types";
 import type { BacktestSummary, CompletedGame, League, PricedSide, UpcomingGame } from "./types";
 
 export type WalkForwardPick = "trusted" | "maxActionableEv" | "profit";
@@ -11,6 +12,7 @@ export type WalkForwardOptions = {
   minHistory?: number;
   minTeamGames?: number;
   pick?: WalkForwardPick;
+  factorLookup?: FactorLookup;
 };
 
 export type SideResult = "W" | "L" | "P";
@@ -65,9 +67,14 @@ function pickSide(args: {
   league: League;
   ratings: ReturnType<typeof fitTeamRatings>;
   pick: WalkForwardPick;
+  factorLookup?: FactorLookup;
 }): { side: PricedSide; alignment: number } | null {
   const upcoming: UpcomingGame = { ...args.game };
-  const report = handicapMatchup({ game: upcoming, ratings: args.ratings });
+  const report = handicapMatchup({
+    game: upcoming,
+    ratings: args.ratings,
+    factorLookup: args.factorLookup,
+  });
   const row = { game: upcoming, report, bestBet: null };
   const side =
     args.pick === "profit"
@@ -120,7 +127,7 @@ export function walkForwardBets(
       if (!home || !away || home.games < minTeamGames || away.games < minTeamGames || !game.market) {
         continue;
       }
-      const picked = pickSide({ game, league, ratings, pick });
+      const picked = pickSide({ game, league, ratings, pick, factorLookup: options.factorLookup });
       if (!picked) {
         continue;
       }

@@ -34,7 +34,10 @@ function MatchupInner() {
               <h1 className="text-2xl font-semibold mt-1">
                 {game.away.name} @ {game.home.name}
               </h1>
-              <p className="mute text-sm">{kickoffLabel(game.kickoffIso)} · {game.venueName ?? "venue n/a"} · {game.market?.book ?? "no book"}</p>
+              <p className="mute text-sm">
+                {kickoffLabel(game.kickoffIso)} · {game.venueName ?? "venue n/a"} · {game.market?.book ?? "no book"} ·{" "}
+                {report.engine === "house-epa" ? "House EPA model" : "SRS fallback"}
+              </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -65,6 +68,17 @@ function MatchupInner() {
               </div>
             </div>
 
+            {report.signals.length > 0 ? (
+              <div className="panel p-4 text-sm space-y-1">
+                <div className="text-xs uppercase mute tracking-wider">Smart signals</div>
+                {report.signals.map((signal) => (
+                  <div key={signal.id} className={signal.kind === "caution" ? "warn" : "good"}>
+                    {signal.kind === "caution" ? "Caution" : "Flag"} · {signal.label}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
             <div className="panel overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="text-[11px] uppercase mute tracking-wider">
@@ -75,7 +89,7 @@ function MatchupInner() {
                     <th className="text-right px-3 py-2">S</th>
                     <th className="text-right px-3 py-2">Fair S′</th>
                     <th className="text-right px-3 py-2">Juice</th>
-                    <th className="text-right px-3 py-2">Edge</th>
+                    <th className="text-right px-3 py-2">DTM</th>
                     <th className="text-right px-3 py-2">EV</th>
                     <th className="text-right px-3 py-2">¼ Kelly</th>
                   </tr>

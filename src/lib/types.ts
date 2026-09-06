@@ -1,3 +1,5 @@
+import type { HouseWeights, SmartSignal, TeamFactors } from "./rithmm/types";
+
 export type League = "nfl" | "ncaaf";
 
 export type MarketSide = "home" | "away" | "over" | "under";
@@ -136,6 +138,8 @@ export interface PricedSide {
   plusEv: boolean;
 }
 
+export type ProjectionEngine = "house-epa" | "srs-fallback";
+
 export interface MatchupReport {
   game: UpcomingGame | CompletedGame;
   projection: ScoreProjection;
@@ -148,6 +152,10 @@ export interface MatchupReport {
   priced: PricedSide[];
   diagnostics: MatchupDiagnostic[];
   confidence: ConfidenceReport;
+  engine: ProjectionEngine;
+  houseWeights?: HouseWeights;
+  factors?: { home: TeamFactors; away: TeamFactors };
+  signals: SmartSignal[];
 }
 
 export interface MatchupDiagnostic {

@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { SnapshotLoader } from "../components/SnapshotLoader";
 import type { League, MatchupReport, TeamRating } from "@/src/lib/types";
+import { HOUSE_FACTORS, type HouseWeights } from "@/src/lib/rithmm/types";
+import { getHouseModel } from "@/src/lib/rithmm/house";
 import type { ModelSnapshot } from "@/src/data/snapshot";
 import { american, evPct, pct, pts } from "@/src/lib/format";
 
@@ -23,6 +25,7 @@ function LabForm({ snapshot }: { snapshot: ModelSnapshot }) {
   const [report, setReport] = useState<MatchupReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [weights, setWeights] = useState<HouseWeights>(getHouseModel("nfl").weights);
   const pack = league === "nfl" ? snapshot.nfl : snapshot.ncaaf;
   const teams = useMemo(
     () => pack.ratings.slice().sort((a, b) => a.team.name.localeCompare(b.team.name)),
@@ -34,8 +37,8 @@ function LabForm({ snapshot }: { snapshot: ModelSnapshot }) {
       <div>
         <h1 className="text-2xl font-semibold">Handicap lab</h1>
         <p className="mute text-sm max-w-3xl">
-          Price any rated matchup against the odds you were actually offered. Paste your book, not a
-          consensus screen, and add a QB adjustment if a starter is out.
+          Price any rated matchup at your book. House EPA model when factor cards exist.
+          Move the five Rithmm-style sliders to build a custom model; the live desk stays on House.
         </p>
       </div>
       <form
@@ -54,6 +57,7 @@ function LabForm({ snapshot }: { snapshot: ModelSnapshot }) {
               awayId,
               qbHome: Number(qbHome),
               qbAway: Number(qbAway),
+              houseWeights: weights,
               market: {
                 homeMoneyline: Number(homeMl),
                 awayMoneyline: Number(awayMl),
@@ -83,7 +87,9 @@ function LabForm({ snapshot }: { snapshot: ModelSnapshot }) {
             className="w-full bg-[var(--bg)] border border-[var(--line)] px-2 py-1.5"
             value={league}
             onChange={(e) => {
-              setLeague(e.target.value as League);
+              const next = e.target.value as League;
+              setLeague(next);
+              setWeights(getHouseModel(next).weights);
               setHomeId("");
               setAwayId("");
             }}
@@ -109,6 +115,24 @@ function LabForm({ snapshot }: { snapshot: ModelSnapshot }) {
         <Field label="Total" value={total} onChange={setTotal} />
         <Field label="Over odds" value={overOdds} onChange={setOverOdds} />
         <Field label="Under odds" value={underOdds} onChange={setUnderOdds} />
+        <div className="md:col-span-4 grid gap-2 md:grid-cols-5">
+          {HOUSE_FACTORS.map((factor) => (
+            <label key={factor} className="space-y-1">
+              <div className="mute text-xs uppercase">
+                {factor} {Math.round(weights[factor] * 100)}%
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={Math.round(weights[factor] * 100)}
+                onChange={(event) =>
+                  setWeights({ ...weights, [factor]: Number(event.target.value) / 100 })
+                }
+              />
+            </label>
+          ))}
+        </div>
         <div className="md:col-span-4">
           <button type="submit" disabled={pending} className="px-3 py-2 border border-[var(--accent)] text-[var(--accent)] disabled:opacity-50">
             {pending ? "Pricing…" : "Price matchup"}
@@ -119,7 +143,8 @@ function LabForm({ snapshot }: { snapshot: ModelSnapshot }) {
       {report ? (
         <div className="panel overflow-x-auto">
           <div className="px-3 py-3 text-sm">
-            Projected {report.projection.awayScore.toFixed(1)}–{report.projection.homeScore.toFixed(1)}
+            {report.engine === "house-epa" ? "House EPA" : "SRS fallback"} · Projected{" "}
+            {report.projection.awayScore.toFixed(1)}–{report.projection.homeScore.toFixed(1)}
             {" "}({pts(report.projection.margin)}, tot {report.projection.total.toFixed(1)})
           </div>
           <table className="w-full text-sm">

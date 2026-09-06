@@ -132,6 +132,8 @@ function row(overrides: {
       priced: overrides.priced,
       diagnostics: [],
       confidence: { score: overrides.confidence ?? 72, reasons: [] },
+      engine: "srs-fallback",
+      signals: [],
     },
     bestBet: overrides.priced[0] ?? null,
   };

@@ -4,9 +4,13 @@ import { pickQuality, selectTrustedBestBet } from "@/src/lib/picks";
 import { fitTeamRatings } from "@/src/lib/ratings";
 import { inferHoldoutSeason, summarizeWalkForward, walkForwardBets } from "@/src/lib/walkForward";
 import { handicapMatchup } from "@/src/lib/matchup";
+import { getHouseModel } from "@/src/lib/rithmm/house";
+import type { FactorStore } from "@/src/lib/rithmm/store";
 import type { CompletedGame, League, UpcomingGame } from "@/src/lib/types";
 import { attachRestDays, dedupeGames, fetchEspnScoreboard, fetchEspnSeason, isCompletedGame } from "./espn";
 import { attachHistoricalClosingOdds } from "./espnOdds";
+import { loadCfbFactorStore } from "./cfbFactors";
+import { loadNflFactorStore } from "./nflFactors";
 import { loadNflverseGames } from "./nflverse";
 import { emptyLeagueSnapshot, type LeagueSnapshot, type ModelSnapshot } from "./snapshot";
 
@@ -65,10 +69,12 @@ function buildBoard(args: {
   league: League;
   upcoming: UpcomingGame[];
   completed: CompletedGame[];
+  factorStore?: FactorStore;
 }): LeagueSnapshot {
   const ratings = fitTeamRatings(args.completed, args.league);
   const rated = new Map(ratings.map((row) => [row.team.id, row]));
   const minGames = args.league === "nfl" ? 8 : 6;
+  const factorLookup = args.factorStore?.lookup;
   const board = args.upcoming
     .filter((game) => {
       const home = rated.get(game.home.id);
@@ -83,7 +89,7 @@ function buildBoard(args: {
       );
     })
     .map((game) => {
-      const report = handicapMatchup({ game, ratings });
+      const report = handicapMatchup({ game, ratings, factorLookup });
       const row = {
         game,
         report,
@@ -107,6 +113,8 @@ function buildBoard(args: {
     board,
     completedCount: args.completed.length,
     upcomingCount: board.length,
+    factorBook: args.factorStore?.allLatest() ?? [],
+    houseModel: getHouseModel(args.league),
   };
 }
 
@@ -124,12 +132,20 @@ export async function refreshNfl(): Promise<LeagueSnapshot> {
   }
   const completed = completedOnly(nflverse);
   const upcoming = preferEspnOdds(upcomingOnly(nflverse), upcomingOnly(espnLive));
-  const snapshot = buildBoard({ league: "nfl", upcoming, completed });
+  const factorStore = await loadNflFactorStore([year - 2, year - 1, year]).catch((error: unknown) => {
+    console.warn("NFL EPA factors unavailable:", error instanceof Error ? error.message : error);
+    return undefined;
+  });
+  const snapshot = buildBoard({ league: "nfl", upcoming, completed, factorStore });
   const holdoutSeason = inferHoldoutSeason(completed);
   if (holdoutSeason !== undefined) {
     snapshot.backtest = summarizeWalkForward(
-      walkForwardBets(completed, "nfl", { holdoutSeason, pick: "profit" }),
-      { holdoutSeason, pickRule: "profit-best-bet" },
+      walkForwardBets(completed, "nfl", {
+        holdoutSeason,
+        pick: "profit",
+        factorLookup: factorStore?.lookup,
+      }),
+      { holdoutSeason, pickRule: "house-epa-profit" },
     );
   }
   return snapshot;
@@ -152,18 +168,24 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
   }
   const holdoutPriced = await attachHistoricalClosingOdds(completedOnly(prior));
   const all = attachRestDays(dedupeGames([...twoYearsAgo, ...holdoutPriced, ...current]));
+  const factorStore = await loadCfbFactorStore([year - 2, year - 1, year]).catch((error: unknown) => {
+    console.warn("NCAAF EPA factors unavailable:", error instanceof Error ? error.message : error);
+    return undefined;
+  });
   const snapshot = buildBoard({
     league: "ncaaf",
     upcoming: upcomingOnly(all),
     completed: completedOnly(all),
+    factorStore,
   });
   snapshot.backtest = summarizeWalkForward(
     walkForwardBets(completedOnly(all), "ncaaf", {
       holdoutSeason,
       pick: "profit",
       minTeamGames: 6,
+      factorLookup: factorStore?.lookup,
     }),
-    { holdoutSeason, pickRule: "profit-best-bet" },
+    { holdoutSeason, pickRule: "house-epa-profit" },
   );
   return snapshot;
 }

@@ -14,12 +14,15 @@ S includes juice. A side is marked +EV only when that inequality holds.
 
 ## How P is built
 
-1. Fit opponent-adjusted offensive and defensive ratings (iterative SRS with recency decay and shrinkage) on completed games.
-2. Convert ratings plus home-field, rest, and wind into an expected score.
-3. Push that score through a Gaussian margin/total distribution. NFL cover probabilities get a small discrete correction around the 3 and 7 keys.
-4. Price each posted side: P, S, de-vigged S′, juice, edge, EV/unit, quarter-Kelly.
+NFL and NCAAF are **separate House models** in the Rithmm layout: statistics → five factors (Running, Passing, Offense, Defense, Ranks) → weighted projection → DTM (P − S).
 
-NFL ratings use nflverse completed regular season and playoffs (prior two seasons plus the current year). Live NFL and all NCAA lines/scores come from ESPN public scoreboards.
+1. Ingest public EPA data. NFL: nflverse `stats_team_week` (pass/rush EPA, CPOE, sacks). NCAAF: sportsdataverse weekly team summaries (pass/rush EPA, success, tempo) plus opponent-adjusted ratings. Snapshots are as-of the prior week so week W does not leak week W results.
+2. Convert those stats to 0–100 factor cards (league-z-scored). Defense is flipped so higher is better.
+3. Apply the league House weights (NFL pass-heavy; NCAAF keeps more run/rank mass). Custom sliders in Lab do not change the live desk.
+4. Push the projected score through a Gaussian. NFL cover probabilities still get a small 3/7 key correction.
+5. Price each posted side. DTM is the same gap as edge: model P minus sportsbook S.
+
+SRS from final scores remains a fallback when a club has no EPA card (typical FCS / thin sample). Live Best Bets stay NCAAF-only until the NFL House holdout is positive.
 
 ## Which book is S?
 

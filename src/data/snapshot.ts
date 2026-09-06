@@ -1,3 +1,4 @@
+import type { HouseModel, TeamFactors } from "@/src/lib/rithmm/types";
 import type {
   BacktestSummary,
   BoardRow,
@@ -13,6 +14,8 @@ export interface LeagueSnapshot {
   completedCount: number;
   upcomingCount: number;
   backtest?: BacktestSummary;
+  factorBook?: TeamFactors[];
+  houseModel?: HouseModel;
 }
 
 export interface ModelSnapshot {

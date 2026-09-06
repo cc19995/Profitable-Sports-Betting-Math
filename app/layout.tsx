@@ -12,6 +12,7 @@ const NAV = [
   ["Parlay Combos", "/combos"],
   ["Board", "/"],
   ["Ratings", "/ratings"],
+  ["Models", "/models"],
   ["Lab", "/lab"],
   ["Builder", "/parlay"],
   ["Calibration", "/calibration"],

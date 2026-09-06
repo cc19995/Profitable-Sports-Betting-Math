@@ -8,7 +8,7 @@ Handicapping here does not pick winners. It assigns a probability **P** and comp
 
 ## What you get
 
-- Opponent-adjusted offensive / defensive ratings (iterative SRS with recency and shrinkage)
+- Separate NFL and NCAAF House models in the Rithmm layout: EPA statistics → Running / Passing / Offense / Defense / Ranks → DTM (P − S)
 - Projected score, win %, cover %, over/under %
 - Market S, de-vigged S′, juice, edge, EV/unit, quarter-Kelly (live S is ESPN/DraftKings; some NFL rows are nflverse close)
 - Matchup sheet of the stats that actually change a football price

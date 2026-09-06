@@ -182,6 +182,12 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
       overfitRisk: "low",
     },
     {
+      stat: "House factors (pass / run / off / def / ranks)",
+      why: "NFL and CFB do not share a talent or pace distribution. Score-only SRS cannot see pass/rush fit.",
+      howUsed: "Separate House models. Live desk uses House weights. Lab sliders are custom models only.",
+      overfitRisk: "medium",
+    },
+    {
       stat: "Profit gate + sit NFL",
       why: "The Gaussian overstates P. Raw +EV and even the trust filter still lost money in NFL holdouts.",
       howUsed: "No moneylines, alignment ≥ 0.8, edge ≥ 4%, EV ≤ 45%. Live desk offers NCAAF only.",

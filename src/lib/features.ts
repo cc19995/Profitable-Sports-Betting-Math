@@ -178,8 +178,14 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
     {
       stat: "Market implied S vs handicapped P",
       why: "The only profitability condition in this repo is P > S after juice.",
-      howUsed: "Every priced side. No bet is a 'pick' without this comparison.",
+      howUsed: "Every priced side. Live Best Bets also require the profit gate and a league whose holdout is not negative.",
       overfitRisk: "low",
+    },
+    {
+      stat: "Profit gate + sit NFL",
+      why: "The Gaussian overstates P. Raw +EV and even the trust filter still lost money in NFL holdouts.",
+      howUsed: "No moneylines, alignment ≥ 0.8, edge ≥ 4%, EV ≤ 45%. Live desk offers NCAAF only.",
+      overfitRisk: "medium",
     },
     {
       stat: "Juice / overround",

@@ -9,7 +9,7 @@ import { american, evPct, kickoffLabel, pct, pts, snapshotClockLabel } from "@/s
 import { DeskFilters } from "./DeskFilters";
 
 export function BestBetsView({ snapshot }: { snapshot: ModelSnapshot }) {
-  const [league, setLeague] = useState<League>("nfl");
+  const [league, setLeague] = useState<League>("ncaaf");
   const [dateKey, setDateKey] = useState("all");
   const pack = league === "nfl" ? snapshot.nfl : snapshot.ncaaf;
   const picks = useMemo(
@@ -23,9 +23,9 @@ export function BestBetsView({ snapshot }: { snapshot: ModelSnapshot }) {
         <div>
           <h1 className="text-2xl font-semibold">Best bets</h1>
           <p className="mute text-sm max-w-3xl">
-            One recommended single per game, ranked by trust-adjusted quality — not raw EV.
-            Flashy prices that disagree wildly with the market, huge-dog moneylines, and
-            thin-sample NCAAF sides are filtered out. Still a worksheet, not a closer.
+            NCAAF only. One recommended single per game: aligned spreads and totals that
+            still clear juice. NFL is sat — the same profit rule lost money in two holdout
+            seasons. Holdout is on /calibration. Still variance, not a lock.
           </p>
         </div>
         <div className="text-right text-xs mute">
@@ -74,7 +74,9 @@ export function BestBetsView({ snapshot }: { snapshot: ModelSnapshot }) {
                       nflverse and rebuild ratings.
                     </>
                   ) : (
-                    "No singles clear the trust filter on this slate. That is intentional — raw +EV is not enough."
+                    league === "nfl"
+                      ? "NFL is sat. The same profit rule lost money in the 2024 and 2025 holdouts. Switch to NCAA Football."
+                      : "No singles clear the profit filter on this slate. That is intentional — raw +EV is not enough."
                   )}
                 </td>
               </tr>

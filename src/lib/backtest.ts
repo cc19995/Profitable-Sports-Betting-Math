@@ -7,6 +7,12 @@ export interface HistoricalBet {
   p: number;
   americanOdds: number;
   won: boolean;
+  betType?: "moneyline" | "spread" | "total";
+  edge?: number;
+  evPerUnit?: number;
+  week?: number;
+  season?: number;
+  alignment?: number;
 }
 
 export function backtestFlat(bets: HistoricalBet[], stake = 1): BacktestSummary {

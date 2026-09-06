@@ -50,8 +50,10 @@ Principle-driven, not fit to last week's losers:
 
 Walk-forward: fit on all games before week W of the holdout season, then price that week against closing-style lines. That is the calibration number on `/calibration`. It is a finite sample. Do not treat one season of flags as proof the market is beaten.
 
-- **NFL:** max actionable +EV side vs nflverse closes. Holdout is the latest season with enough games.
-- **NCAAF:** same trusted Best Bet rule as the desk, vs ESPN BET closes, on the **prior completed season** (2025 while 2026 is in progress). Historical ESPN scoreboards do not include lines; closes are attached from the ESPN core odds API. Pushes are dropped.
+- **NFL:** same profit rule vs nflverse closes, for diagnosis only. Two holdout seasons lost money, so the **live desk sits NFL**. The holdout stays on `/calibration` so that sit is auditable.
+- **NCAAF:** same rule vs ESPN BET closes, on the **prior completed season** (2025 while 2026 is in progress). Historical ESPN scoreboards do not include lines; closes are attached from the ESPN core odds API. Pushes are dropped. This is the only live betting book.
+
+The profit rule sits on top of the trust filter: no moneylines, raw edge at least 4%, EV capped at 45%, and the projection must be close to the market (alignment ≥ 0.8). That is because this Gaussian overstates P on dogs and on 10-point disagreements. We sit NFL rather than further restrict to NCAAF totals-only after seeing 2025 — that extra cut would be a one-year curve-fit.
 
 ## What this is not
 

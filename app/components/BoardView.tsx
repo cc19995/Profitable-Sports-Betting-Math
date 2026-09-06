@@ -7,7 +7,7 @@ import type { ModelSnapshot } from "@/src/data/snapshot";
 import { american, evPct, kickoffDateKey, kickoffDateLabel, kickoffLabel, pct, pts, snapshotClockLabel } from "@/src/lib/format";
 
 export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
-  const [league, setLeague] = useState<League>("nfl");
+  const [league, setLeague] = useState<League>("ncaaf");
   const [plusOnly, setPlusOnly] = useState(false);
   const [dateKey, setDateKey] = useState("all");
   const pack = league === "nfl" ? snapshot.nfl : snapshot.ncaaf;
@@ -40,11 +40,10 @@ export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
         <div>
           <h1 className="text-2xl font-semibold">Matchup board</h1>
           <p className="mute text-sm max-w-3xl">
-            Recommended sides require P &gt; S after juice, a real projection gap
-            (about 2.5 pts on the spread or 3.5 on the total), and the same trust
-            filter as Best Bet. Raw-EV moneylines that fight the market are not
-            the board pick. Prices are the ESPN/DraftKings (or nflverse close)
-            number on the snapshot, not a Hard Rock shop.
+            Live Best Bets are NCAAF only. A recommended side still needs P &gt; S
+            after juice, a real projection gap, and the profit filter (no moneylines,
+            aligned to the market). NFL rows stay priced for research; they do not
+            get a board pick. Snapshot S is ESPN/DraftKings, not Hard Rock.
           </p>
         </div>
         <div className="text-right text-xs mute">

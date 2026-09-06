@@ -128,8 +128,8 @@ export async function refreshNfl(): Promise<LeagueSnapshot> {
   const holdoutSeason = inferHoldoutSeason(completed);
   if (holdoutSeason !== undefined) {
     snapshot.backtest = summarizeWalkForward(
-      walkForwardBets(completed, "nfl", { holdoutSeason, pick: "maxActionableEv" }),
-      { holdoutSeason, pickRule: "max-actionable-ev" },
+      walkForwardBets(completed, "nfl", { holdoutSeason, pick: "profit" }),
+      { holdoutSeason, pickRule: "profit-best-bet" },
     );
   }
   return snapshot;
@@ -160,10 +160,10 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
   snapshot.backtest = summarizeWalkForward(
     walkForwardBets(completedOnly(all), "ncaaf", {
       holdoutSeason,
-      pick: "trusted",
+      pick: "profit",
       minTeamGames: 6,
     }),
-    { holdoutSeason, pickRule: "trusted-best-bet" },
+    { holdoutSeason, pickRule: "profit-best-bet" },
   );
   return snapshot;
 }

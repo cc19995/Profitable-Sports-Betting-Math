@@ -12,7 +12,7 @@ Handicapping here does not pick winners. It assigns a probability **P** and comp
 - Projected score, win %, cover %, over/under %
 - Market S, de-vigged S′, juice, edge, EV/unit, quarter-Kelly (live S is ESPN/DraftKings; some NFL rows are nflverse close)
 - Matchup sheet of the stats that actually change a football price
-- Best Bet tab: one trust-adjusted single per game (raw EV monsters are filtered out)
+- Best Bet tab: NCAAF-only profit-filter singles (NFL is sat; raw EV monsters are filtered out)
 - Parlay Combos tab: auto-built 2- and 3-leg tickets from that pool, never two legs from the same game
 - Manual +EV parlay builder that compounds only when every leg is +EV
 - Walk-forward holdout vs closing-style lines

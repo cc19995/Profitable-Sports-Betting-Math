@@ -15,3 +15,4 @@ export * from "./format";
 export * from "./calibration";
 export * from "./backtest";
 export * from "./walkForward";
+export * from "./profit";

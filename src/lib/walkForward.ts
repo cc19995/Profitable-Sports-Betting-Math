@@ -1,10 +1,10 @@
 import { backtestFlat, type HistoricalBet } from "./backtest";
 import { handicapMatchup, isActionable } from "./matchup";
-import { selectTrustedBestBet } from "./picks";
+import { alignmentScore, selectProfitBestBet, selectTrustedBestBet } from "./picks";
 import { fitTeamRatings } from "./ratings";
 import type { BacktestSummary, CompletedGame, League, PricedSide, UpcomingGame } from "./types";
 
-export type WalkForwardPick = "trusted" | "maxActionableEv";
+export type WalkForwardPick = "trusted" | "maxActionableEv" | "profit";
 
 export type WalkForwardOptions = {
   holdoutSeason: number;
@@ -65,17 +65,30 @@ function pickSide(args: {
   league: League;
   ratings: ReturnType<typeof fitTeamRatings>;
   pick: WalkForwardPick;
-}): PricedSide | null {
+}): { side: PricedSide; alignment: number } | null {
   const upcoming: UpcomingGame = { ...args.game };
   const report = handicapMatchup({ game: upcoming, ratings: args.ratings });
   const row = { game: upcoming, report, bestBet: null };
-  if (args.pick === "trusted") {
-    return selectTrustedBestBet(row);
+  const side =
+    args.pick === "profit"
+      ? selectProfitBestBet(row)
+      : args.pick === "trusted"
+        ? selectTrustedBestBet(row)
+        : (report.priced
+            .filter((priced) =>
+              isActionable(
+                priced,
+                args.game.market,
+                report.projection.margin,
+                report.projection.total,
+                args.league,
+              ),
+            )
+            .sort((a, b) => b.evPerUnit - a.evPerUnit)[0] ?? null);
+  if (!side) {
+    return null;
   }
-  const plus = report.priced.filter((side) =>
-    isActionable(side, args.game.market, report.projection.margin, report.projection.total, args.league),
-  );
-  return plus.sort((a, b) => b.evPerUnit - a.evPerUnit)[0] ?? null;
+  return { side, alignment: alignmentScore(row, side) };
 }
 
 export function walkForwardBets(
@@ -107,18 +120,24 @@ export function walkForwardBets(
       if (!home || !away || home.games < minTeamGames || away.games < minTeamGames || !game.market) {
         continue;
       }
-      const side = pickSide({ game, league, ratings, pick });
-      if (!side) {
+      const picked = pickSide({ game, league, ratings, pick });
+      if (!picked) {
         continue;
       }
-      const result = gradeCompletedSide(side, game);
+      const result = gradeCompletedSide(picked.side, game);
       if (result === null || result === "P") {
         continue;
       }
       bets.push({
-        p: side.handicappedP,
-        americanOdds: side.americanOdds,
+        p: picked.side.handicappedP,
+        americanOdds: picked.side.americanOdds,
         won: result === "W",
+        betType: picked.side.betType,
+        edge: picked.side.edge,
+        evPerUnit: picked.side.evPerUnit,
+        week: game.week,
+        season: game.season,
+        alignment: picked.alignment,
       });
     }
   }

@@ -9,7 +9,7 @@ import { american, evPct, kickoffLabel, pct, snapshotClockLabel } from "@/src/li
 import { DeskFilters } from "./DeskFilters";
 
 export function CombosView({ snapshot }: { snapshot: ModelSnapshot }) {
-  const [league, setLeague] = useState<League>("nfl");
+  const [league, setLeague] = useState<League>("ncaaf");
   const [dateKey, setDateKey] = useState("all");
   const [sameDateOnly, setSameDateOnly] = useState(true);
   const pack = league === "nfl" ? snapshot.nfl : snapshot.ncaaf;
@@ -29,9 +29,10 @@ export function CombosView({ snapshot }: { snapshot: ModelSnapshot }) {
         <div>
           <h1 className="text-2xl font-semibold">Parlay combos</h1>
           <p className="mute text-sm max-w-3xl">
-            Auto-built 2- and 3-leg tickets from the Best Bet pool. No two legs from the
-            same game. Ranked by trust-adjusted parlay quality, not the juiciest raw EV.
-            The math assumes independence — do not add a correlated same-game number by hand.
+            Auto-built 2- and 3-leg tickets from the NCAAF Best Bet pool. NFL is sat.
+            No two legs from the same game. Ranked by trust-adjusted parlay quality, not
+            the juiciest raw EV. The math assumes independence — do not add a correlated
+            same-game number by hand.
             Use the{" "}
             <Link href="/parlay" className="accent">
               manual builder
@@ -70,8 +71,9 @@ export function CombosView({ snapshot }: { snapshot: ModelSnapshot }) {
 
       {combos.length === 0 ? (
         <div className="panel p-5 mute text-sm">
-          Not enough trusted singles on this slate to build a +EV combo. Open Best Bets first —
-          parlays are only assembled from that pool.
+          {league === "nfl"
+            ? "NFL is sat. Combos are only built from the NCAA Football Best Bet pool."
+            : "Not enough profit-filter singles on this slate to build a +EV combo. Open Best Bets first — parlays are only assembled from that pool."}
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">

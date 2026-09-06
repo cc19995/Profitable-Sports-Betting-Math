@@ -141,7 +141,7 @@ describe("walk-forward holdout", () => {
       holdoutSeason: 2025,
       minHistory: 20,
       minTeamGames: 3,
-      pick: "trusted",
+      pick: "maxActionableEv",
     });
     expect(bets.length).toBeGreaterThan(0);
     expect(bets.every((bet) => bet.p > 0 && bet.p < 1)).toBe(true);

@@ -1,6 +1,6 @@
 import { evaluateParlay, parlayAmericanOdds } from "./parlay";
 import { kickoffDateKey, kickoffDateLabel } from "./format";
-import { isTrustEligible } from "./matchup";
+import { isLiveLeague, isProfitEligible } from "./profit";
 import type { BoardRow, League, PricedSide } from "./types";
 
 export type RankedPick = {
@@ -61,7 +61,7 @@ function totalGap(row: BoardRow): number | undefined {
   return row.report.projection.total - marketTotal;
 }
 
-function alignmentScore(row: BoardRow, pick: PricedSide): number {
+export function alignmentScore(row: BoardRow, pick: PricedSide): number {
   if (pick.betType === "total") {
     const gap = totalGap(row);
     if (gap === undefined) return 0.55;
@@ -85,8 +85,8 @@ function alignmentScore(row: BoardRow, pick: PricedSide): number {
   return 0.18;
 }
 
-export function isBestBetEligible(row: BoardRow, pick: PricedSide): boolean {
-  return isTrustEligible(
+function profitEligibleOnRow(row: BoardRow, pick: PricedSide): boolean {
+  return isProfitEligible(
     pick,
     row.game.market,
     row.report.projection.margin,
@@ -97,15 +97,34 @@ export function isBestBetEligible(row: BoardRow, pick: PricedSide): boolean {
       homeGames: row.report.ratings.home.games,
       awayGames: row.report.ratings.away.games,
     },
+    alignmentScore(row, pick),
   );
 }
 
-export function selectTrustedBestBet(row: BoardRow): PricedSide | null {
-  const eligible = row.report.priced.filter((pick) => isBestBetEligible(row, pick));
-  if (eligible.length === 0) {
+export function isBestBetEligible(row: BoardRow, pick: PricedSide): boolean {
+  if (!isLiveLeague(row.game.league)) {
+    return false;
+  }
+  return profitEligibleOnRow(row, pick);
+}
+
+function selectBestAmong(
+  row: BoardRow,
+  eligible: (pick: PricedSide) => boolean,
+): PricedSide | null {
+  const pool = row.report.priced.filter(eligible);
+  if (pool.length === 0) {
     return null;
   }
-  return eligible.reduce((best, pick) => (pickQuality(row, pick) > pickQuality(row, best) ? pick : best));
+  return pool.reduce((best, pick) => (pickQuality(row, pick) > pickQuality(row, best) ? pick : best));
+}
+
+export function selectTrustedBestBet(row: BoardRow): PricedSide | null {
+  return selectBestAmong(row, (pick) => isBestBetEligible(row, pick));
+}
+
+export function selectProfitBestBet(row: BoardRow): PricedSide | null {
+  return selectBestAmong(row, (pick) => profitEligibleOnRow(row, pick));
 }
 
 export function pickQuality(row: BoardRow, pick: PricedSide): number {

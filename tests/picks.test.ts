@@ -159,13 +159,14 @@ describe("best-bet eligibility", () => {
     expect(isBestBetEligible(view, monster)).toBe(false);
   });
 
-  it("keeps a modest aligned NFL spread", () => {
+  it("keeps a modest aligned NCAAF spread", () => {
     const pick = priced({
       label: "HOM -3",
       betType: "spread",
       handicappedP: 0.575,
     });
     const view = row({
+      league: "ncaaf",
       priced: [pick],
       margin: 6,
       market: { homeSpread: -3, total: 44.5 },
@@ -198,8 +199,8 @@ describe("best-bet eligibility", () => {
       market: { homeSpread: -10, total: 47.5 },
     });
     expect(isBestBetEligible(view, moneyline)).toBe(false);
-    expect(isBestBetEligible(view, spread)).toBe(true);
-    expect(selectTrustedBestBet(view)?.label).toBe("TOL +10");
+    expect(isBestBetEligible(view, spread)).toBe(false);
+    expect(selectTrustedBestBet(view)).toBeNull();
   });
 
   it("ranks a market-aligned edge above a huge disagreement with flashy EV", () => {
@@ -210,6 +211,7 @@ describe("best-bet eligibility", () => {
     });
     const alignedRow = row({
       id: "aligned",
+      league: "ncaaf",
       priced: [aligned],
       margin: 6,
       market: { homeSpread: -3, total: 44.5 },
@@ -223,13 +225,30 @@ describe("best-bet eligibility", () => {
     });
     const flashyRow = row({
       id: "flashy",
+      league: "ncaaf",
       priced: [flashy],
       margin: -14,
       market: { homeSpread: -3, total: 44.5 },
     });
     expect(isBestBetEligible(alignedRow, aligned)).toBe(true);
-    expect(isBestBetEligible(flashyRow, flashy)).toBe(true);
+    expect(isBestBetEligible(flashyRow, flashy)).toBe(false);
     expect(pickQuality(alignedRow, aligned)).toBeGreaterThan(pickQuality(flashyRow, flashy));
+  });
+
+  it("sits an aligned NFL spread on the live desk", () => {
+    const pick = priced({
+      label: "HOM -3",
+      betType: "spread",
+      handicappedP: 0.575,
+    });
+    const view = row({
+      league: "nfl",
+      priced: [pick],
+      margin: 6,
+      market: { homeSpread: -3, total: 44.5 },
+    });
+    expect(isBestBetEligible(view, pick)).toBe(false);
+    expect(selectTrustedBestBet(view)).toBeNull();
   });
 });
 
@@ -238,6 +257,7 @@ describe("parlay combo builder", () => {
     const games = [
       row({
         id: "g1",
+        league: "ncaaf",
         kickoffIso: "2026-09-07T17:00:00.000Z",
         priced: [
           priced({ label: "HOM -3", betType: "spread", handicappedP: 0.58 }),
@@ -254,6 +274,7 @@ describe("parlay combo builder", () => {
       }),
       row({
         id: "g2",
+        league: "ncaaf",
         home: "H2",
         away: "A2",
         kickoffIso: "2026-09-07T20:00:00.000Z",
@@ -263,6 +284,7 @@ describe("parlay combo builder", () => {
       }),
       row({
         id: "g3",
+        league: "ncaaf",
         home: "H3",
         away: "A3",
         kickoffIso: "2026-09-07T23:00:00.000Z",

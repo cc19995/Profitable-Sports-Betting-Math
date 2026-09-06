@@ -20,9 +20,11 @@ export default function CalibrationPage() {
               <p className="mute text-sm max-w-3xl">
                 Calibration means if the model says 30%, the event happens 30% of the time. The
                 walk-forward below fits ratings on prior games only, then prices the next week
-                against closing-style lines. NFL uses the max actionable +EV side. NCAAF uses the
-                same trusted Best Bet rule as the desk, on the prior completed season (2025), with
-                ESPN BET closes. That is a holdout, not an in-sample curve-fit.
+                against closing-style lines. Both leagues use the same profit rule: no moneylines,
+                aligned spreads and totals only. The live desk only offers NCAAF. NFL stay-out is
+                because that same rule lost money in 2024 and 2025 holdouts — those numbers stay
+                on this page so the sit is auditable, not hidden. NCAAF holdout is the prior
+                completed season vs ESPN BET closes.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">

@@ -1,11 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { backtestFlat, type HistoricalBet } from "@/src/lib/backtest";
-import { handicapMatchup, isActionable } from "@/src/lib/matchup";
 import { pickQuality, selectTrustedBestBet } from "@/src/lib/picks";
 import { fitTeamRatings } from "@/src/lib/ratings";
+import { inferHoldoutSeason, summarizeWalkForward, walkForwardBets } from "@/src/lib/walkForward";
+import { handicapMatchup } from "@/src/lib/matchup";
 import type { CompletedGame, League, UpcomingGame } from "@/src/lib/types";
 import { attachRestDays, dedupeGames, fetchEspnScoreboard, fetchEspnSeason, isCompletedGame } from "./espn";
+import { attachHistoricalClosingOdds } from "./espnOdds";
 import { loadNflverseGames } from "./nflverse";
 import { emptyLeagueSnapshot, type LeagueSnapshot, type ModelSnapshot } from "./snapshot";
 
@@ -109,64 +110,6 @@ function buildBoard(args: {
   };
 }
 
-function walkForwardBets(completed: CompletedGame[], league: League): HistoricalBet[] {
-  const sorted = completed
-    .slice()
-    .sort((a, b) => a.kickoffIso.localeCompare(b.kickoffIso) || a.week - b.week);
-  const bets: HistoricalBet[] = [];
-  const seasons = [...new Set(sorted.map((game) => game.season))].sort((a, b) => a - b);
-  let holdoutSeason = seasons[seasons.length - 1];
-  if (holdoutSeason === undefined) {
-    return bets;
-  }
-  const previousSeason = seasons[seasons.length - 2];
-  if (
-    previousSeason !== undefined &&
-    sorted.filter((game) => game.season === holdoutSeason).length < 64
-  ) {
-    holdoutSeason = previousSeason;
-  }
-  const prior = sorted.filter((game) => game.season < holdoutSeason);
-  const holdout = sorted.filter((game) => game.season === holdoutSeason);
-  const weeks = [...new Set(holdout.map((game) => game.week))].sort((a, b) => a - b);
-
-  for (const week of weeks) {
-    const history = [...prior, ...holdout.filter((game) => game.week < week)];
-    if (history.length < 32) {
-      continue;
-    }
-    const ratings = fitTeamRatings(history, league);
-    const rated = new Set(ratings.map((row) => row.team.id));
-    for (const game of holdout.filter((row) => row.week === week)) {
-      if (!rated.has(game.home.id) || !rated.has(game.away.id) || !game.market) {
-        continue;
-      }
-      const upcoming: UpcomingGame = { ...game };
-      const report = handicapMatchup({ game: upcoming, ratings });
-      const plus = report.priced.filter((side) =>
-        isActionable(side, game.market, report.projection.margin, report.projection.total, league),
-      );
-      const side = plus.sort((a, b) => b.evPerUnit - a.evPerUnit)[0];
-      if (!side) {
-        continue;
-      }
-      let won = false;
-      if (side.betType === "moneyline") {
-        won = side.side === "home" ? game.homeScore > game.awayScore : game.awayScore > game.homeScore;
-      } else if (side.betType === "spread" && game.market.homeSpread !== undefined) {
-        const margin = game.homeScore - game.awayScore;
-        won = side.side === "home" ? margin + game.market.homeSpread > 0 : -(margin + game.market.homeSpread) > 0;
-      } else if (side.betType === "total" && game.market.total !== undefined) {
-        const total = game.homeScore + game.awayScore;
-        won = side.side === "over" ? total > game.market.total : total < game.market.total;
-      } else {
-        continue;
-      }
-      bets.push({ p: side.handicappedP, americanOdds: side.americanOdds, won });
-    }
-  }
-  return bets;
-}
 
 export async function refreshNfl(): Promise<LeagueSnapshot> {
   const year = new Date().getUTCFullYear();
@@ -182,16 +125,23 @@ export async function refreshNfl(): Promise<LeagueSnapshot> {
   const completed = completedOnly(nflverse);
   const upcoming = preferEspnOdds(upcomingOnly(nflverse), upcomingOnly(espnLive));
   const snapshot = buildBoard({ league: "nfl", upcoming, completed });
-  const bets = walkForwardBets(completed, "nfl");
-  if (bets.length >= 20) {
-    snapshot.backtest = backtestFlat(bets, 1);
+  const holdoutSeason = inferHoldoutSeason(completed);
+  if (holdoutSeason !== undefined) {
+    snapshot.backtest = summarizeWalkForward(
+      walkForwardBets(completed, "nfl", { holdoutSeason, pick: "maxActionableEv" }),
+      { holdoutSeason, pickRule: "max-actionable-ev" },
+    );
   }
   return snapshot;
 }
 
 export async function refreshNcaaf(): Promise<LeagueSnapshot> {
   const year = new Date().getUTCFullYear();
-  const prior = await fetchEspnSeason({ league: "ncaaf", year: year - 1, includePostseason: true });
+  const holdoutSeason = year - 1;
+  const [twoYearsAgo, prior] = await Promise.all([
+    fetchEspnSeason({ league: "ncaaf", year: year - 2, includePostseason: true, maxWeek: 16 }),
+    fetchEspnSeason({ league: "ncaaf", year: holdoutSeason, includePostseason: true, maxWeek: 16 }),
+  ]);
   let current: Array<CompletedGame | UpcomingGame> = [];
   try {
     current = await fetchEspnSeason({ league: "ncaaf", year, maxWeek: 3, includePostseason: false });
@@ -200,16 +150,21 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
   } catch (error) {
     console.warn("ESPN NCAAF current season unavailable:", error instanceof Error ? error.message : error);
   }
-  const all = attachRestDays(dedupeGames([...prior, ...current]));
+  const holdoutPriced = await attachHistoricalClosingOdds(completedOnly(prior));
+  const all = attachRestDays(dedupeGames([...twoYearsAgo, ...holdoutPriced, ...current]));
   const snapshot = buildBoard({
     league: "ncaaf",
     upcoming: upcomingOnly(all),
     completed: completedOnly(all),
   });
-  const bets = walkForwardBets(completedOnly(all).filter((game) => game.season === year - 1 || game.season === year), "ncaaf");
-  if (bets.length >= 20) {
-    snapshot.backtest = backtestFlat(bets, 1);
-  }
+  snapshot.backtest = summarizeWalkForward(
+    walkForwardBets(completedOnly(all), "ncaaf", {
+      holdoutSeason,
+      pick: "trusted",
+      minTeamGames: 6,
+    }),
+    { holdoutSeason, pickRule: "trusted-best-bet" },
+  );
   return snapshot;
 }
 

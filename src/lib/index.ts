@@ -14,3 +14,4 @@ export * from "./matchup";
 export * from "./format";
 export * from "./calibration";
 export * from "./backtest";
+export * from "./walkForward";

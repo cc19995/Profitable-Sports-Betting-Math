@@ -203,4 +203,6 @@ export interface BacktestSummary {
   maxDrawdown: number;
   brier: number;
   bins: CalibrationBin[];
+  holdoutSeason?: number;
+  pickRule?: string;
 }

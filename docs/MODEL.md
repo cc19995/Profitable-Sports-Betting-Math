@@ -48,7 +48,10 @@ Principle-driven, not fit to last week's losers:
 
 ## Holdout
 
-Walk-forward: fit on all games before week W of the holdout season, then take only +EV sides against that week's closing-style lines. That is the calibration number on `/calibration`. It is a finite sample. Do not treat one season of NFL (~200-400 +EV flags) as proof the market is beaten.
+Walk-forward: fit on all games before week W of the holdout season, then price that week against closing-style lines. That is the calibration number on `/calibration`. It is a finite sample. Do not treat one season of flags as proof the market is beaten.
+
+- **NFL:** max actionable +EV side vs nflverse closes. Holdout is the latest season with enough games.
+- **NCAAF:** same trusted Best Bet rule as the desk, vs ESPN BET closes, on the **prior completed season** (2025 while 2026 is in progress). Historical ESPN scoreboards do not include lines; closes are attached from the ESPN core odds API. Pushes are dropped.
 
 ## What this is not
 

@@ -19,8 +19,10 @@ export default function CalibrationPage() {
               <h1 className="text-2xl font-semibold">Calibration & holdout</h1>
               <p className="mute text-sm max-w-3xl">
                 Calibration means if the model says 30%, the event happens 30% of the time. The
-                walk-forward below fits ratings on prior games only, then prices +EV sides on the
-                next week against closing lines. That is a holdout, not an in-sample curve-fit.
+                walk-forward below fits ratings on prior games only, then prices the next week
+                against closing-style lines. NFL uses the max actionable +EV side. NCAAF uses the
+                same trusted Best Bet rule as the desk, on the prior completed season (2025), with
+                ESPN BET closes. That is a holdout, not an in-sample curve-fit.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
@@ -29,6 +31,10 @@ export default function CalibrationPage() {
                   <div className="font-medium">{test.label}</div>
                   {test.summary ? (
                     <>
+                      <div className="mute text-xs">
+                        {test.summary.holdoutSeason ? `Holdout ${test.summary.holdoutSeason}` : "Holdout season inferred"}
+                        {test.summary.pickRule ? ` · ${test.summary.pickRule}` : ""}
+                      </div>
                       <div>Bets {test.summary.n} · wins {test.summary.wins} ({pct(test.summary.empiricalP)})</div>
                       <div>Average S {pct(test.summary.avgS)} · units {test.summary.units.toFixed(2)} · ROI {evPct(test.summary.roi)}</div>
                       <div>Max drawdown {test.summary.maxDrawdown.toFixed(2)} · Brier {test.summary.brier.toFixed(4)}</div>

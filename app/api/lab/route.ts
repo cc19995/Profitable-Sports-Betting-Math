@@ -69,18 +69,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "unknown team id" }, { status: 404 });
     }
     const factorBook = indexFactors(pack.factorBook ?? []);
+    const existing = pack.board.find(
+      (row) => row.game.home.id === home.team.id && row.game.away.id === away.team.id,
+    );
     const report = handicapMatchup({
       game: {
-        id: `lab:${away.team.id}@${home.team.id}`,
+        id: existing?.game.id ?? `lab:${away.team.id}@${home.team.id}`,
         league,
         season: new Date().getUTCFullYear(),
-        week: 99,
-        gameType: "LAB",
-        kickoffIso: new Date().toISOString(),
+        week: existing?.game.week ?? 99,
+        gameType: existing?.game.gameType ?? "LAB",
+        kickoffIso: existing?.game.kickoffIso ?? new Date().toISOString(),
         home: home.team,
         away: away.team,
-        neutralSite: false,
-        market: body.market,
+        neutralSite: existing?.game.neutralSite ?? false,
+        indoor: existing?.game.indoor,
+        roof: existing?.game.roof,
+        venueCity: existing?.game.venueCity,
+        venueState: existing?.game.venueState,
+        windMph: existing?.game.windMph,
+        temperatureF: existing?.game.temperatureF,
+        edge: existing?.game.edge,
+        market: body.market ?? existing?.game.market,
       },
       ratings: pack.ratings,
       qbHome: body.qbHome,

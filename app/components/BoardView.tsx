@@ -162,6 +162,9 @@ export function BoardView({ snapshot }: { snapshot: ModelSnapshot }) {
                         <div className="mute text-xs">
                           {row.game.away.name} at {row.game.home.name}
                         </div>
+                        {row.game.edge?.notes.length ? (
+                          <div className="text-xs accent mt-0.5">{row.game.edge.notes.slice(0, 2).join(" · ")}</div>
+                        ) : null}
                       </Link>
                     </td>
                     <td className="px-3 py-2 mute text-xs">{kickoffLabel(row.game.kickoffIso)}</td>

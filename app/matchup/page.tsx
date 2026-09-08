@@ -68,6 +68,49 @@ function MatchupInner() {
               </div>
             </div>
 
+            {game.edge ? (
+              <div className="panel p-4 text-sm space-y-3">
+                <div className="text-xs uppercase mute tracking-wider">Weekly edge ingest</div>
+                {game.edge.notes.length > 0 ? (
+                  <div className="accent">{game.edge.notes.join(" · ")}</div>
+                ) : (
+                  <div className="mute">No material injury/weather/line-move flags on this game.</div>
+                )}
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div>
+                    <div className="text-xs mute uppercase">Injuries</div>
+                    <div className="mt-1">
+                      {game.home.abbreviation}: QB {game.edge.scoreAdjustments.qbHome.toFixed(1)}, rest {game.edge.scoreAdjustments.injuryHome.toFixed(1)}
+                    </div>
+                    <div>
+                      {game.away.abbreviation}: QB {game.edge.scoreAdjustments.qbAway.toFixed(1)}, rest {game.edge.scoreAdjustments.injuryAway.toFixed(1)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs mute uppercase">Weather</div>
+                    <div className="mt-1">{game.edge.weather.description}</div>
+                    <div className="mute">Total trim {game.edge.weather.totalAdjustment.toFixed(1)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs mute uppercase">Market tape</div>
+                    <div className="mt-1">
+                      Consensus {game.edge.market.consensusHomeSpread ?? "—"} / {game.edge.market.consensusTotal ?? "—"}
+                    </div>
+                    <div className="mute">
+                      ESPN move {game.edge.market.espnSpreadMove ?? "—"} · {game.edge.market.books.length} books
+                    </div>
+                  </div>
+                </div>
+                {game.edge.news.length > 0 ? (
+                  <ul className="mute space-y-1">
+                    {game.edge.news.slice(0, 4).map((item) => (
+                      <li key={item.headline}>{item.headline}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ) : null}
+
             {report.signals.length > 0 ? (
               <div className="panel p-4 text-sm space-y-1">
                 <div className="text-xs uppercase mute tracking-wider">Smart signals</div>

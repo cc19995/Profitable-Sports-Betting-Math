@@ -6,6 +6,10 @@ import { americanToImplied, parseAmericanOdds } from "@/src/lib/odds";
 import { isLeague } from "@/src/lib/league";
 import { refreshAll } from "@/src/data/pipeline";
 import { readSnapshot } from "@/src/data/loadSnapshot";
+import { attachWeeklyEdge, compactGameEdge } from "@/src/data/weeklyIngest";
+import { fetchEspnScoreboard, isCompletedGame } from "@/src/data/espn";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 
 function arg(name: string, fallback?: string): string {
   const idx = process.argv.indexOf(`--${name}`);
@@ -68,8 +72,8 @@ async function matchup(): Promise<void> {
   const report = handicapMatchup({
     game,
     ratings: pack.ratings,
-    qbHome: hasFlag("qb-home") ? Number(arg("qb-home")) : 0,
-    qbAway: hasFlag("qb-away") ? Number(arg("qb-away")) : 0,
+    qbHome: hasFlag("qb-home") ? Number(arg("qb-home")) : undefined,
+    qbAway: hasFlag("qb-away") ? Number(arg("qb-away")) : undefined,
   });
   console.log(JSON.stringify({
     projection: report.projection,
@@ -138,6 +142,43 @@ async function combos(): Promise<void> {
   }
 }
 
+async function ingest(): Promise<void> {
+  const [nfl, ncaaf] = await Promise.all([
+    fetchEspnScoreboard({ league: "nfl" }).catch((error: unknown) => {
+      console.warn("NFL scoreboard unavailable:", error instanceof Error ? error.message : error);
+      return [];
+    }),
+    fetchEspnScoreboard({ league: "ncaaf" }).catch((error: unknown) => {
+      console.warn("NCAAF scoreboard unavailable:", error instanceof Error ? error.message : error);
+      return [];
+    }),
+  ]);
+  const upcoming = [...nfl, ...ncaaf].filter((game) => !isCompletedGame(game));
+  const attached = await attachWeeklyEdge(upcoming);
+  const compact = attached.map(compactGameEdge);
+  const out = {
+    generatedAt: new Date().toISOString(),
+    nflGames: compact.filter((row) => row.league === "nfl").length,
+    ncaafGames: compact.filter((row) => row.league === "ncaaf").length,
+    qbFlags: compact.filter((row) => Math.abs(Number(row.qbHome)) >= 1 || Math.abs(Number(row.qbAway)) >= 1).length,
+    outdoorForecasts: compact.filter((row) => row.weather && row.weather !== "indoor" && row.weather !== "no forecast").length,
+    games: compact,
+  };
+  const dest = path.join(process.cwd(), "data", "week-edge.json");
+  await mkdir(path.dirname(dest), { recursive: true });
+  await writeFile(dest, JSON.stringify(out, null, 2));
+  console.log(`wrote ${dest}`);
+  console.log(`NFL ${out.nflGames}  NCAAF ${out.ncaafGames}  QB flags ${out.qbFlags}  outdoor forecasts ${out.outdoorForecasts}`);
+  for (const row of compact.filter((item) => (item.notes as string[]).length > 0).slice(0, 24)) {
+    console.log(`${row.matchup}  ${(itemNotes(row)).join(" | ")}`);
+  }
+}
+
+function itemNotes(row: Record<string, unknown>): string[] {
+  const notes = row.notes;
+  return Array.isArray(notes) ? notes.map(String) : [];
+}
+
 function price(): void {
   const p = Number(arg("p"));
   const odds = parseAmericanOdds(arg("odds"));
@@ -167,6 +208,10 @@ async function main(): Promise<void> {
     console.log(`NCAAF ratings=${snapshot.ncaaf.ratings.length} board=${snapshot.ncaaf.upcomingCount} backtestN=${snapshot.ncaaf.backtest?.n ?? 0}`);
     return;
   }
+  if (cmd === "ingest") {
+    await ingest();
+    return;
+  }
   if (cmd === "board") {
     await board();
     return;
@@ -193,6 +238,7 @@ async function main(): Promise<void> {
   }
   console.log(`Usage:
   npm run refresh
+  npm run ingest:week
   npm run model -- board --league nfl
   npm run model -- best --league nfl
   npm run model -- combos --league nfl

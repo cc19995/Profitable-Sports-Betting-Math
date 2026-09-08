@@ -2,7 +2,7 @@
 
 A handicapping desk for **NFL** and **NCAA Football** that implements the +EV math in this repository.
 
-The original write-up is unchanged at [docs/PLUS_EV_MATH.md](docs/PLUS_EV_MATH.md). The model notes are at [docs/MODEL.md](docs/MODEL.md).
+The original write-up is unchanged at [docs/PLUS_EV_MATH.md](docs/PLUS_EV_MATH.md). The model notes are at [docs/MODEL.md](docs/MODEL.md). Weekly injury / weather / news / market ingest is at [docs/WEEKLY_DATA.md](docs/WEEKLY_DATA.md).
 
 Handicapping here does not pick winners. It assigns a probability **P** and compares it to the sportsbook implied probability **S**. Average gain per unit stake is `B(P/S − 1)`. That is positive if and only if **P > S** after juice.
 
@@ -22,7 +22,8 @@ Handicapping here does not pick winners. It assigns a probability **P** and comp
 ```bash
 npm install
 npm test
-npm run refresh    # nflverse + ESPN → data/snapshot.json
+npm run refresh    # nflverse + ESPN + weekly edge ingest → data/snapshot.json
+npm run ingest:week # injuries, Open-Meteo, news, Action Network → data/week-edge.json
 npm run dev        # http://localhost:3000
 ```
 

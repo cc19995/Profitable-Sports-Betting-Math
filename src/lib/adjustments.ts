@@ -38,24 +38,76 @@ export function restAdjustment(homeRestDays: number | undefined, awayRestDays: n
 
 export function weatherTotalAdjustment(args: {
   windMph?: number;
+  windGustMph?: number;
   indoor?: boolean;
   roof?: string;
+  precipProbability?: number;
+  precipMm?: number;
+  snowfallCm?: number;
+  temperatureF?: number;
 }): number {
   if (args.indoor || args.roof === "dome" || args.roof === "closed") {
     return 0;
   }
+  let total = 0;
   const wind = args.windMph;
-  if (wind === undefined) {
-    return 0;
+  if (wind !== undefined) {
+    const mph = assertFiniteNumber(wind, "windMph");
+    if (mph < 0) {
+      throw new Error("windMph cannot be negative");
+    }
+    if (mph >= 12) {
+      total += -0.18 * (mph - 10);
+    }
   }
-  const mph = assertFiniteNumber(wind, "windMph");
-  if (mph < 0) {
-    throw new Error("windMph cannot be negative");
+  const gust = args.windGustMph;
+  if (gust !== undefined) {
+    const gustMph = assertFiniteNumber(gust, "windGustMph");
+    if (gustMph < 0) {
+      throw new Error("windGustMph cannot be negative");
+    }
+    const sustained = args.windMph ?? 0;
+    if (gustMph >= 20 && gustMph - sustained >= 10) {
+      total += -0.08 * (gustMph - 15);
+    }
   }
-  if (mph < 12) {
-    return 0;
+  const precipProb = args.precipProbability;
+  const precipMm = args.precipMm;
+  if (precipProb !== undefined) {
+    assertFiniteNumber(precipProb, "precipProbability");
   }
-  return -0.18 * (mph - 10);
+  if (precipMm !== undefined) {
+    assertFiniteNumber(precipMm, "precipMm");
+  }
+  if ((precipProb ?? 0) >= 50 && (precipMm ?? 0) >= 0.5) {
+    total -= 1;
+  }
+  if ((precipProb ?? 0) >= 70 && (precipMm ?? 0) >= 2) {
+    total -= 1.2;
+  }
+  const snow = args.snowfallCm;
+  if (snow !== undefined) {
+    const cm = assertFiniteNumber(snow, "snowfallCm");
+    if (cm < 0) {
+      throw new Error("snowfallCm cannot be negative");
+    }
+    if (cm >= 0.5) {
+      total -= 2;
+    }
+    if (cm >= 2) {
+      total -= 1.5;
+    }
+  }
+  const temp = args.temperatureF;
+  if (temp !== undefined) {
+    const f = assertFiniteNumber(temp, "temperatureF");
+    if (f <= 20) {
+      total -= 1.5;
+    } else if (f <= 32) {
+      total -= 0.6;
+    }
+  }
+  return Math.max(-8, total);
 }
 
 export function buildAdjustments(args: {
@@ -64,8 +116,13 @@ export function buildAdjustments(args: {
   homeRestDays?: number;
   awayRestDays?: number;
   windMph?: number;
+  windGustMph?: number;
   indoor?: boolean;
   roof?: string;
+  precipProbability?: number;
+  precipMm?: number;
+  snowfallCm?: number;
+  temperatureF?: number;
   qbHome?: number;
   qbAway?: number;
   userHome?: number;
@@ -77,8 +134,13 @@ export function buildAdjustments(args: {
     rest: restAdjustment(args.homeRestDays, args.awayRestDays),
     weatherTotal: weatherTotalAdjustment({
       windMph: args.windMph,
+      windGustMph: args.windGustMph,
       indoor: args.indoor,
       roof: args.roof,
+      precipProbability: args.precipProbability,
+      precipMm: args.precipMm,
+      snowfallCm: args.snowfallCm,
+      temperatureF: args.temperatureF,
     }),
     qbHome: bounded(args.qbHome ?? 0, "qbHome"),
     qbAway: bounded(args.qbAway ?? 0, "qbAway"),

@@ -1,4 +1,4 @@
-import { mkdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const DEFAULT_TTL_MS = 12 * 60 * 60 * 1000;
@@ -30,4 +30,41 @@ export async function cachedDownload(args: {
   }
   await writeFile(dest, await response.text());
   return dest;
+}
+
+export async function cachedJson<T>(args: {
+  url: string;
+  fileName: string;
+  ttlMs?: number;
+  headers?: Record<string, string>;
+}): Promise<T> {
+  if (typeof args.url !== "string" || args.url.length === 0) {
+    throw new Error("json url is required");
+  }
+  if (typeof args.fileName !== "string" || args.fileName.length === 0) {
+    throw new Error("json fileName is required");
+  }
+  const dest = path.join(process.cwd(), "data", "cache", args.fileName);
+  await mkdir(path.dirname(dest), { recursive: true });
+  const existing = await stat(dest).catch(() => null);
+  const ttl = args.ttlMs ?? DEFAULT_TTL_MS;
+  if (existing && Date.now() - existing.mtimeMs < ttl) {
+    return JSON.parse(await readFile(dest, "utf8")) as T;
+  }
+  const response = await fetch(args.url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "football-ev-desk/1.0",
+      ...(args.headers ?? {}),
+    },
+  });
+  if (!response.ok) {
+    if (existing) {
+      return JSON.parse(await readFile(dest, "utf8")) as T;
+    }
+    throw new Error(`json download failed ${response.status} for ${args.url}`);
+  }
+  const text = await response.text();
+  await writeFile(dest, text);
+  return JSON.parse(text) as T;
 }

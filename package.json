@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "refresh": "tsx src/cli.ts refresh",
     "model": "tsx src/cli.ts",
-    "grade:week1": "tsx scripts/grade-week1.ts"
+    "grade:week1": "tsx scripts/grade-week1.ts",
+    "ingest:week": "tsx src/cli.ts ingest"
   },
   "engines": {
     "node": ">=20"

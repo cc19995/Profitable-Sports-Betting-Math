@@ -9,6 +9,7 @@ import { buildDiagnostics, confidenceReport } from "./features";
 import { getHouseModel } from "./rithmm/house";
 import { projectHouseScores } from "./rithmm/project";
 import { alignmentFromGaps, houseSignals } from "./rithmm/signals";
+import { edgeAdjustments } from "./weeklyEdge";
 import type { FactorLookup, HouseWeights, TeamFactors } from "./rithmm/types";
 import type {
   CompletedGame,
@@ -73,18 +74,25 @@ export function handicapMatchup(args: {
   const away = ratingById(args.ratings, args.game.away.id);
   const constants = getLeagueConstants(args.game.league);
   const market = args.marketOverride ?? args.game.market;
+  const auto = edgeAdjustments(args.game as UpcomingGame);
+  const indoor = "indoor" in args.game ? args.game.indoor : undefined;
   const adjustments = buildAdjustments({
     league: args.game.league,
     neutralSite: args.game.neutralSite,
     homeRestDays: args.game.homeRestDays,
     awayRestDays: args.game.awayRestDays,
-    windMph: args.game.windMph,
-    indoor: "indoor" in args.game ? args.game.indoor : undefined,
+    windMph: args.game.windMph ?? auto.weather.windMph,
+    windGustMph: auto.weather.windGustMph,
+    indoor,
     roof: args.game.roof,
-    qbHome: args.qbHome,
-    qbAway: args.qbAway,
-    userHome: args.userHome,
-    userAway: args.userAway,
+    precipProbability: auto.weather.precipProbability,
+    precipMm: auto.weather.precipMm,
+    snowfallCm: auto.weather.snowfallCm,
+    temperatureF: args.game.temperatureF ?? auto.weather.temperatureF,
+    qbHome: args.qbHome ?? auto.qbHome,
+    qbAway: args.qbAway ?? auto.qbAway,
+    userHome: (args.userHome ?? 0) + auto.injuryHome,
+    userAway: (args.userAway ?? 0) + auto.injuryAway,
   });
 
   const homeFactors = args.factorLookup?.(args.game.home.id, args.game.season, args.game.week) ??

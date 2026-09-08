@@ -87,6 +87,23 @@ describe("gradeCompletedSide", () => {
   it("wins the home moneyline when the home team wins", () => {
     expect(gradeCompletedSide(priced({ betType: "moneyline", side: "home", label: "HOM ML" }), base)).toBe("W");
   });
+
+  it("pushes SMU -3 at FSU +3 when SMU wins by exactly 3", () => {
+    const smuFsu = game({
+      id: "ncaaf:401858212",
+      season: 2026,
+      week: 1,
+      home: "FSU",
+      away: "SMU",
+      hs: 24,
+      as: 27,
+      homeSpread: 3,
+      total: 52.5,
+    });
+    expect(
+      gradeCompletedSide(priced({ betType: "spread", side: "away", label: "SMU -3" }), smuFsu),
+    ).toBe("P");
+  });
 });
 
 describe("walk-forward holdout", () => {

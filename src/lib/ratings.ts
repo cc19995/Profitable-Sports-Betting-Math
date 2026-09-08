@@ -1,5 +1,6 @@
 import { getLeagueConstants } from "./league";
 import { assertFiniteNumber } from "./odds";
+import { pythagoreanWins } from "./processMatchup";
 import type { CompletedGame, League, TeamRating, TeamRef } from "./types";
 
 const MAX_ITERATIONS = 40;
@@ -20,6 +21,9 @@ interface InternalRating {
   awayResidual: number;
   awayGames: number;
   opponentNet: number;
+  wins: number;
+  oneScoreWins: number;
+  oneScoreGames: number;
 }
 
 function gameWeight(gamesAgo: number, halfLife: number): number {
@@ -64,6 +68,9 @@ export function fitTeamRatings(games: CompletedGame[], league: League): TeamRati
       awayResidual: 0,
       awayGames: 0,
       opponentNet: 0,
+      wins: 0,
+      oneScoreWins: 0,
+      oneScoreGames: 0,
     };
     teams.set(ref.id, created);
     return created;
@@ -171,6 +178,22 @@ export function fitTeamRatings(games: CompletedGame[], league: League): TeamRati
     away.awayResidual -= residualHome;
     away.awayGames += 1;
 
+    if (game.homeScore > game.awayScore) {
+      home.wins += 1;
+    } else if (game.awayScore > game.homeScore) {
+      away.wins += 1;
+    }
+    const absMargin = Math.abs(game.homeScore - game.awayScore);
+    if (absMargin > 0 && absMargin <= 8) {
+      home.oneScoreGames += 1;
+      away.oneScoreGames += 1;
+      if (game.homeScore > game.awayScore) {
+        home.oneScoreWins += 1;
+      } else {
+        away.oneScoreWins += 1;
+      }
+    }
+
     const homeAgo = gamesAgoByTeam.get(home.team.id) ?? 0;
     const awayAgo = gamesAgoByTeam.get(away.team.id) ?? 0;
     if (homeAgo < 4) {
@@ -198,6 +221,10 @@ export function fitTeamRatings(games: CompletedGame[], league: League): TeamRati
       last4Residual: team.last4.length > 0 ? team.last4.reduce((a, b) => a + b, 0) / team.last4.length : 0,
       homeResidual: team.homeGames > 0 ? team.homeResidual / team.homeGames : 0,
       awayResidual: team.awayGames > 0 ? team.awayResidual / team.awayGames : 0,
+      wins: team.wins,
+      pythagoreanWins: pythagoreanWins(team.pointsFor, team.pointsAgainst, team.games),
+      oneScoreWins: team.oneScoreWins,
+      oneScoreGames: team.oneScoreGames,
     });
   }
 

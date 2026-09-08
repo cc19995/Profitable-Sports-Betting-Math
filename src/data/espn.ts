@@ -1,6 +1,14 @@
 import type { CompletedGame, League, MarketLines, TeamRef, UpcomingGame } from "@/src/lib/types";
 
-const ESPN_SITE = "https://site.api.espn.com/apis/site/v2/sports/football";
+const ESPN_SITE_HOSTS = [
+  "https://site.web.api.espn.com",
+  "https://site.api.espn.com",
+] as const;
+
+const ESPN_HEADERS = {
+  Accept: "application/json",
+  "User-Agent": "football-ev-desk/1.0",
+} as const;
 
 interface EspnCompetitor {
   homeAway?: string;
@@ -49,7 +57,11 @@ interface EspnEvent {
     neutralSite?: boolean;
     competitors?: EspnCompetitor[];
     status?: { type?: { completed?: boolean; state?: string; name?: string } };
-    venue?: { fullName?: string; indoor?: boolean };
+    venue?: {
+      fullName?: string;
+      indoor?: boolean;
+      address?: { city?: string; state?: string; country?: string };
+    };
     weather?: { temperature?: number; displayValue?: string; gust?: number; conditionId?: string };
     odds?: EspnOdds[];
   }>;
@@ -65,16 +77,68 @@ function leaguePath(league: League): string {
   return league === "nfl" ? "nfl" : "college-football";
 }
 
-export async function fetchEspnJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`ESPN request failed ${response.status} for ${url}`);
+function expandEspnUrls(url: string): string[] {
+  if (url.includes("site.api.espn.com")) {
+    return [url, url.replace("site.api.espn.com", "site.web.api.espn.com")];
   }
-  return (await response.json()) as T;
+  if (url.includes("site.web.api.espn.com")) {
+    return [url, url.replace("site.web.api.espn.com", "site.api.espn.com")];
+  }
+  return [url];
+}
+
+export async function fetchEspnJson<T>(url: string): Promise<T> {
+  let lastError: Error | undefined;
+  for (const candidate of expandEspnUrls(url)) {
+    try {
+      const response = await fetch(candidate, {
+        headers: ESPN_HEADERS,
+      });
+      if (response.ok) {
+        return (await response.json()) as T;
+      }
+      lastError = new Error(`ESPN request failed ${response.status} for ${candidate}`);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
+  }
+  throw lastError ?? new Error(`ESPN request failed for ${url}`);
+}
+
+export async function cachedEspnJson<T>(args: {
+  url: string;
+  fileName: string;
+  ttlMs?: number;
+}): Promise<T> {
+  if (typeof args.url !== "string" || args.url.length === 0) {
+    throw new Error("espn url is required");
+  }
+  if (typeof args.fileName !== "string" || args.fileName.length === 0) {
+    throw new Error("espn fileName is required");
+  }
+  const { mkdir, readFile, stat, writeFile } = await import("node:fs/promises");
+  const path = await import("node:path");
+  const dest = path.join(process.cwd(), "data", "cache", args.fileName);
+  await mkdir(path.dirname(dest), { recursive: true });
+  const existing = await stat(dest).catch(() => null);
+  const ttl = args.ttlMs ?? 2 * 60 * 60 * 1000;
+  if (existing && Date.now() - existing.mtimeMs < ttl) {
+    return JSON.parse(await readFile(dest, "utf8")) as T;
+  }
+  try {
+    const payload = await fetchEspnJson<T>(args.url);
+    await writeFile(dest, JSON.stringify(payload));
+    return payload;
+  } catch (error) {
+    if (existing) {
+      return JSON.parse(await readFile(dest, "utf8")) as T;
+    }
+    throw error;
+  }
+}
+
+export function espnSitePath(league: League, suffix: string): string {
+  return `${ESPN_SITE_HOSTS[0]}/apis/site/v2/sports/football/${leaguePath(league)}/${suffix}`;
 }
 
 function parseAmerican(raw: string | undefined): number | undefined {
@@ -172,6 +236,8 @@ function mapEvent(event: EspnEvent, league: League): CompletedGame | UpcomingGam
     away,
     neutralSite: Boolean(competition.neutralSite),
     venueName: competition.venue?.fullName,
+    venueCity: competition.venue?.address?.city,
+    venueState: competition.venue?.address?.state,
     indoor: competition.venue?.indoor,
     roof: competition.venue?.indoor ? "dome" : "outdoors",
     temperatureF: competition.weather?.temperature,
@@ -219,7 +285,7 @@ export async function fetchEspnScoreboard(args: {
   if (args.league === "ncaaf") {
     search.set("groups", "80");
   }
-  const url = `${ESPN_SITE}/${leaguePath(args.league)}/scoreboard?${search.toString()}`;
+  const url = espnSitePath(args.league, `scoreboard?${search.toString()}`);
   const payload = await fetchEspnJson<EspnScoreboard>(url);
   const out: Array<CompletedGame | UpcomingGame> = [];
   for (const event of payload.events ?? []) {

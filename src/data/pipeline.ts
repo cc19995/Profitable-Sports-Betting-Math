@@ -13,6 +13,7 @@ import { loadCfbFactorStore } from "./cfbFactors";
 import { loadNflFactorStore } from "./nflFactors";
 import { loadNflverseGames } from "./nflverse";
 import { emptyLeagueSnapshot, type LeagueSnapshot, type ModelSnapshot } from "./snapshot";
+import { attachWeeklyEdge } from "./weeklyIngest";
 
 function snapshotPath(): string {
   return path.join(process.cwd(), "data", "snapshot.json");
@@ -43,7 +44,15 @@ function preferEspnOdds(primary: UpcomingGame[], live: UpcomingGame[]): Upcoming
     if (!match?.market) {
       return game;
     }
-    return { ...game, market: match.market, venueName: match.venueName, indoor: match.indoor };
+    return {
+      ...game,
+      market: match.market,
+      venueName: match.venueName,
+      venueCity: match.venueCity,
+      venueState: match.venueState,
+      indoor: match.indoor,
+      roof: match.roof,
+    };
   });
 }
 
@@ -137,7 +146,11 @@ export async function refreshNfl(): Promise<LeagueSnapshot> {
     console.warn("ESPN NFL live odds unavailable:", error instanceof Error ? error.message : error);
   }
   const completed = completedOnly(nflverse);
-  const upcoming = preferEspnOdds(upcomingOnly(nflverse), upcomingOnly(espnLive));
+  const mergedUpcoming = preferEspnOdds(upcomingOnly(nflverse), upcomingOnly(espnLive));
+  const upcoming = await attachWeeklyEdge(mergedUpcoming).catch((error: unknown) => {
+    console.warn("NFL weekly edge ingest failed:", error instanceof Error ? error.message : error);
+    return mergedUpcoming;
+  });
   const factorStore = await loadNflFactorStore([year - 2, year - 1, year]).catch((error: unknown) => {
     console.warn("NFL EPA factors unavailable:", error instanceof Error ? error.message : error);
     return undefined;
@@ -180,7 +193,10 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
   });
   const snapshot = buildBoard({
     league: "ncaaf",
-    upcoming: upcomingOnly(all),
+    upcoming: await attachWeeklyEdge(upcomingOnly(all)).catch((error: unknown) => {
+      console.warn("NCAAF weekly edge ingest failed:", error instanceof Error ? error.message : error);
+      return upcomingOnly(all);
+    }),
     completed: completedOnly(all),
     factorStore,
     priceWithHouse: false,

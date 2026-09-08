@@ -57,6 +57,8 @@ export interface UpcomingGame {
   homeRestDays?: number;
   awayRestDays?: number;
   venueName?: string;
+  venueCity?: string;
+  venueState?: string;
   indoor?: boolean;
   roof?: string;
   temperatureF?: number;
@@ -64,6 +66,101 @@ export interface UpcomingGame {
   market?: MarketLines;
   homeRecord?: string;
   awayRecord?: string;
+  edge?: GameEdgeContext;
+}
+
+export type NewsTag = "injury" | "qb" | "weather" | "suspension" | "coaching" | "other";
+
+export interface InjuryListing {
+  player: string;
+  position: string;
+  status: string;
+  comment?: string;
+  impactPoints: number;
+  side: "offense" | "defense" | "special" | "ignored";
+}
+
+export interface TeamInjuryImpact {
+  teamId: string;
+  teamAbbr: string;
+  qbPoints: number;
+  offensePoints: number;
+  defensePoints: number;
+  listings: InjuryListing[];
+  clusterNote?: string;
+}
+
+export interface WeatherForecast {
+  source: "open-meteo" | "none";
+  indoor: boolean;
+  city?: string;
+  state?: string;
+  temperatureF?: number;
+  windMph?: number;
+  windGustMph?: number;
+  precipProbability?: number;
+  precipMm?: number;
+  snowfallCm?: number;
+  humidity?: number;
+  description?: string;
+  totalAdjustment: number;
+}
+
+export interface MarketBookLine {
+  bookId: number;
+  book: string;
+  homeSpread?: number;
+  total?: number;
+  homeMoneyline?: number;
+  awayMoneyline?: number;
+  updatedIso?: string;
+  spreadHomePublic?: number;
+  spreadAwayPublic?: number;
+  spreadHomeMoney?: number;
+  spreadAwayMoney?: number;
+  mlHomePublic?: number;
+  mlAwayPublic?: number;
+}
+
+export interface MarketConsensus {
+  books: MarketBookLine[];
+  consensusHomeSpread?: number;
+  consensusTotal?: number;
+  bestHomeSpread?: number;
+  bestAwaySpread?: number;
+  spreadRange?: number;
+  totalRange?: number;
+  espnSpreadMove?: number;
+  espnTotalMove?: number;
+  espnMlHomeImpliedMove?: number;
+  publicHomeSpreadPct?: number;
+  publicHomeMoneyPct?: number;
+  ticketMoneyDivergence?: number;
+  steamHint: boolean;
+}
+
+export interface NewsItem {
+  headline: string;
+  published?: string;
+  url?: string;
+  teamAbbrs: string[];
+  tags: NewsTag[];
+}
+
+export interface GameEdgeContext {
+  capturedAt: string;
+  injuries: { home: TeamInjuryImpact; away: TeamInjuryImpact };
+  weather: WeatherForecast;
+  market: MarketConsensus;
+  news: NewsItem[];
+  scoreAdjustments: {
+    qbHome: number;
+    qbAway: number;
+    injuryHome: number;
+    injuryAway: number;
+    weatherTotal: number;
+  };
+  notes: string[];
 }
 
 export interface MarketLines {
@@ -95,6 +192,10 @@ export interface TeamRating {
   last4Residual: number;
   homeResidual: number;
   awayResidual: number;
+  wins?: number;
+  pythagoreanWins?: number;
+  oneScoreWins?: number;
+  oneScoreGames?: number;
 }
 
 export interface MatchupAdjustments {

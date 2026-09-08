@@ -2,10 +2,13 @@ import { getLeagueConstants } from "./league";
 import type {
   CompletedGame,
   ConfidenceReport,
+  GameEdgeContext,
+  MarketConsensus,
   MarketLines,
   MatchupAdjustments,
   MatchupDiagnostic,
   ScoreProjection,
+  TeamInjuryImpact,
   TeamRating,
   UpcomingGame,
 } from "./types";
@@ -18,6 +21,76 @@ function fmt(value: number, digits = 1): string {
   return `${sign}${value.toFixed(digits)}`;
 }
 
+function pythagLabel(team: TeamRating): string {
+  if (team.wins === undefined || team.pythagoreanWins === undefined) {
+    return "n/a";
+  }
+  const oneScore =
+    team.oneScoreGames && team.oneScoreGames > 0
+      ? ` · ${team.oneScoreWins ?? 0}-${team.oneScoreGames - (team.oneScoreWins ?? 0)} one-score`
+      : "";
+  return `${team.wins.toFixed(0)}W / ${team.pythagoreanWins.toFixed(1)} pyth${oneScore}`;
+}
+
+function gameEdge(game: UpcomingGame | CompletedGame): GameEdgeContext | undefined {
+  return "edge" in game ? game.edge : undefined;
+}
+
+function injuryLabel(impact: TeamInjuryImpact | undefined): string {
+  if (!impact) {
+    return "n/a";
+  }
+  const notable = impact.listings.filter((row) => row.side !== "ignored" && row.impactPoints >= 0.4);
+  if (notable.length === 0 && impact.qbPoints === 0) {
+    return "clear";
+  }
+  if (impact.qbPoints <= -1) {
+    const qb = notable.find((row) => row.position === "QB");
+    return `QB ${qb?.status ?? "out"}`;
+  }
+  return notable.slice(0, 2).map((row) => `${row.position} ${row.status}`).join(", ") || "listed";
+}
+
+function edgeWeatherLabel(game: UpcomingGame | CompletedGame): string {
+  const edge = gameEdge(game);
+  if (edge?.weather.description) {
+    return edge.weather.description;
+  }
+  if (game.windMph !== undefined) {
+    return `${game.windMph} mph wind`;
+  }
+  return game.roof ?? "n/a";
+}
+
+function marketMoveNote(market: MarketLines | undefined, consensus: MarketConsensus | undefined): string {
+  const bits: string[] = [];
+  if (market?.openHomeSpread !== undefined && market.homeSpread !== undefined) {
+    bits.push(`ESPN spread ${fmt(market.openHomeSpread)} → ${fmt(market.homeSpread)}.`);
+  }
+  if (market?.openTotal !== undefined && market.total !== undefined) {
+    bits.push(`Total ${market.openTotal} → ${market.total}.`);
+  }
+  if (consensus?.consensusHomeSpread !== undefined) {
+    bits.push(`Multi-book median ${fmt(consensus.consensusHomeSpread)}.`);
+  }
+  if (consensus?.steamHint) {
+    bits.push("Books disagree by 1.5+ points.");
+  }
+  if (consensus?.espnMlHomeImpliedMove !== undefined) {
+    bits.push(`Home ML implied P moved ${fmt(100 * consensus.espnMlHomeImpliedMove, 1)} pp.`);
+  }
+  if (consensus?.publicHomeSpreadPct !== undefined) {
+    bits.push(`Public tickets on home ${consensus.publicHomeSpreadPct.toFixed(0)}%.`);
+  }
+  if (consensus?.ticketMoneyDivergence !== undefined && Math.abs(consensus.ticketMoneyDivergence) >= 15) {
+    bits.push(`Ticket/money divergence ${fmt(consensus.ticketMoneyDivergence, 0)} pp — not auto-followed.`);
+  }
+  if (bits.length === 0) {
+    return "No open/consensus tape on this game.";
+  }
+  return bits.join(" ");
+}
+
 export function buildDiagnostics(args: {
   game: UpcomingGame | CompletedGame;
   home: TeamRating;
@@ -27,6 +100,7 @@ export function buildDiagnostics(args: {
   market?: MarketLines;
 }): MatchupDiagnostic[] {
   const constants = getLeagueConstants(args.game.league);
+  const edge = gameEdge(args.game);
   const marketSpread = args.market?.homeSpread;
   const spreadGap = marketSpread !== undefined ? args.projection.margin + marketSpread : undefined;
   const totalGap = args.market?.total !== undefined ? args.projection.total - args.market.total : undefined;
@@ -83,6 +157,14 @@ export function buildDiagnostics(args: {
       bettingRelevance: "Surface this; do not automatically fade it. Persistent residuals can be missing QB/scheme info. Large L4 residuals are usually noise.",
     },
     {
+      key: "pythag",
+      label: "Pythagorean vs actual wins",
+      homeValue: pythagLabel(args.home),
+      awayValue: pythagLabel(args.away),
+      note: "Expected wins from points scored/allowed (exponent 2.37). One-score clustering is listed when present.",
+      bettingRelevance: "A team well ahead of Pythagorean + winning close games is often overbid. Diagnostic only — already partly in residual margin.",
+    },
+    {
       key: "form",
       label: "Last-4 residual",
       homeValue: fmt(args.home.last4Residual),
@@ -109,10 +191,38 @@ export function buildDiagnostics(args: {
     {
       key: "weather",
       label: "Weather / roof",
-      homeValue: args.game.windMph !== undefined ? `${args.game.windMph} mph wind` : args.game.roof ?? "n/a",
+      homeValue: edgeWeatherLabel(args.game),
       awayValue: args.adjustments.weatherTotal.toFixed(1),
-      note: "Wind above ~12 mph trims the total. Domes are zeroed.",
+      note: edge?.weather.description
+        ? `Forecast: ${edge.weather.description}. Applied total trim: ${fmt(args.adjustments.weatherTotal)}.`
+        : `Applied weather points: ${fmt(args.adjustments.weatherTotal)}. Wind above ~12 mph trims the total. Domes are zeroed.`,
       bettingRelevance: "Totals first. Sides only if one offense is much more pass-dependent and you have that information.",
+    },
+    {
+      key: "injuries",
+      label: "Injuries / replacement",
+      homeValue: injuryLabel(edge?.injuries.home),
+      awayValue: injuryLabel(edge?.injuries.away),
+      note: edge
+        ? `QB pts ${fmt(edge.scoreAdjustments.qbHome)} / ${fmt(edge.scoreAdjustments.qbAway)}. Other personnel ${fmt(edge.scoreAdjustments.injuryHome)} / ${fmt(edge.scoreAdjustments.injuryAway)}.`
+        : "No weekly injury ingest on this game. Lab can still enter a QB adjustment.",
+      bettingRelevance: "Measure starter → replacement drop-off, especially QB and clustered OL/CB. Do not count names.",
+    },
+    {
+      key: "marketMove",
+      label: "Open vs current / consensus",
+      homeValue: edge?.market.espnSpreadMove !== undefined ? fmt(edge.market.espnSpreadMove) : "n/a",
+      awayValue: edge?.market.consensusHomeSpread !== undefined ? fmt(edge.market.consensusHomeSpread) : "n/a",
+      note: marketMoveNote(args.market, edge?.market),
+      bettingRelevance: "Line movement is information, not a bet. Do not automatically fade or follow steam. Price the number you can actually bet. Public % is stored when Action Network sends it; the free payload is usually null.",
+    },
+    {
+      key: "news",
+      label: "Matched headlines",
+      homeValue: String(edge?.news.filter((item) => item.teamAbbrs.includes(args.game.home.abbreviation)).length ?? 0),
+      awayValue: String(edge?.news.filter((item) => item.teamAbbrs.includes(args.game.away.abbreviation)).length ?? 0),
+      note: edge?.news[0]?.headline ?? "No team-matched ESPN headlines on this ingest.",
+      bettingRelevance: "Headlines are a backup sensor. Only a missing QB flag can move the number, and then only at Questionable weight.",
     },
     {
       key: "hfa",
@@ -141,6 +251,7 @@ export function confidenceReport(args: {
   const reasons: string[] = [];
   let score = 70;
   const minGames = Math.min(args.home.games, args.away.games);
+  const edge = gameEdge(args.game);
   if (minGames < 4) {
     score -= 25;
     reasons.push("Small sample: ratings are mostly last-season priors plus shrinkage.");
@@ -159,6 +270,18 @@ export function confidenceReport(args: {
   if (!args.game.market) {
     score -= 6;
     reasons.push("No market line loaded, so this is a projection rather than a priced bet.");
+  }
+  if (edge && (edge.scoreAdjustments.qbHome !== 0 || edge.scoreAdjustments.qbAway !== 0)) {
+    reasons.push("QB availability from the injury report is applied to expected score. Replacement quality is a prior, not a player model.");
+  }
+  const outdoor = !("indoor" in args.game && args.game.indoor) && args.game.roof !== "dome" && args.game.roof !== "closed";
+  if (outdoor && edge?.weather.source === "none") {
+    score -= 3;
+    reasons.push("Outdoor game with no forecast attached. Total is missing wind/precip.");
+  }
+  if (edge?.market.espnSpreadMove !== undefined && Math.abs(edge.market.espnSpreadMove) >= 2) {
+    score -= 5;
+    reasons.push("Spread has moved 2+ points since open. That is information; it is not a reason to chase the steam.");
   }
   score = Math.max(15, Math.min(92, score));
   if (reasons.length === 0) {
@@ -212,9 +335,9 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
       overfitRisk: "medium",
     },
     {
-      stat: "Wind / dome",
-      why: "Passing efficiency and field-goal range collapse in high wind.",
-      howUsed: "Total adjustment. Side only with a pass-game mismatch.",
+      stat: "Wind / precip / dome",
+      why: "Passing efficiency and field-goal range collapse in high wind, snow, and extreme cold.",
+      howUsed: "Open-Meteo kickoff-hour forecast. Total adjustment. Indoor/dome zeroed.",
       overfitRisk: "medium",
     },
     {
@@ -224,9 +347,9 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
       overfitRisk: "low",
     },
     {
-      stat: "QB availability (user-entered)",
-      why: "The largest single-player variance in football. The model cannot see a late scratch unless you enter it.",
-      howUsed: "Manual point adjustment on the lab / matchup form.",
+      stat: "QB availability (injury report)",
+      why: "The largest single-player variance in football. A healthy backup is not the starter.",
+      howUsed: "ESPN injury feed each refresh. Out/Doubtful QB moves expected score; questionable is 35% of that. Not fit to last week.",
       overfitRisk: "medium",
     },
     {
@@ -240,6 +363,18 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
       why: "Bettors overweight recency. Four games is not a new rating.",
       howUsed: "Shown as a warning, lightly weighted in the rating decay already.",
       overfitRisk: "high",
+    },
+    {
+      stat: "Process rates (success, explosive, pressure, fumble luck)",
+      why: "EPA already has most of this. Pressure matchups, explosive environment, and 50/50 fumble recoveries are the leftovers.",
+      howUsed: "Small capped points on SRS and House expected score. Pythagorean/one-score shown, not auto-faded.",
+      overfitRisk: "medium",
+    },
+    {
+      stat: "Closing Line Value",
+      why: "Whether you beat the close is the best personal skill metric. It is not a live feature.",
+      howUsed: "Grade after the close exists. Do not put CLV into P.",
+      overfitRisk: "low",
     },
   ];
 }

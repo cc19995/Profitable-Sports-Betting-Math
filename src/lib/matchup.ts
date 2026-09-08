@@ -9,6 +9,8 @@ import { buildDiagnostics, confidenceReport } from "./features";
 import { getHouseModel } from "./rithmm/house";
 import { projectHouseScores } from "./rithmm/project";
 import { alignmentFromGaps, houseSignals } from "./rithmm/signals";
+import { edgeAdjustments } from "./weeklyEdge";
+import { processMatchupAdjustment, westCoastEarlyPenalty } from "./processMatchup";
 import type { FactorLookup, HouseWeights, TeamFactors } from "./rithmm/types";
 import type {
   CompletedGame,
@@ -73,26 +75,41 @@ export function handicapMatchup(args: {
   const away = ratingById(args.ratings, args.game.away.id);
   const constants = getLeagueConstants(args.game.league);
   const market = args.marketOverride ?? args.game.market;
-  const adjustments = buildAdjustments({
-    league: args.game.league,
-    neutralSite: args.game.neutralSite,
-    homeRestDays: args.game.homeRestDays,
-    awayRestDays: args.game.awayRestDays,
-    windMph: args.game.windMph,
-    indoor: "indoor" in args.game ? args.game.indoor : undefined,
-    roof: args.game.roof,
-    qbHome: args.qbHome,
-    qbAway: args.qbAway,
-    userHome: args.userHome,
-    userAway: args.userAway,
-  });
-
+  const auto = edgeAdjustments(args.game as UpcomingGame);
+  const indoor = "indoor" in args.game ? args.game.indoor : undefined;
   const homeFactors = args.factorLookup?.(args.game.home.id, args.game.season, args.game.week) ??
     args.factorLookup?.(args.game.home.abbreviation, args.game.season, args.game.week) ??
     args.factorLookup?.(args.game.home.name, args.game.season, args.game.week);
   const awayFactors = args.factorLookup?.(args.game.away.id, args.game.season, args.game.week) ??
     args.factorLookup?.(args.game.away.abbreviation, args.game.season, args.game.week) ??
     args.factorLookup?.(args.game.away.name, args.game.season, args.game.week);
+  const process = processMatchupAdjustment(homeFactors, awayFactors);
+  const travelAway = westCoastEarlyPenalty({
+    league: args.game.league,
+    awayAbbr: args.game.away.abbreviation,
+    kickoffIso: args.game.kickoffIso,
+    neutralSite: args.game.neutralSite,
+  });
+  const adjustments = buildAdjustments({
+    league: args.game.league,
+    neutralSite: args.game.neutralSite,
+    homeRestDays: args.game.homeRestDays,
+    awayRestDays: args.game.awayRestDays,
+    windMph: args.game.windMph ?? auto.weather.windMph,
+    windGustMph: auto.weather.windGustMph,
+    indoor,
+    roof: args.game.roof,
+    precipProbability: auto.weather.precipProbability,
+    precipMm: auto.weather.precipMm,
+    snowfallCm: auto.weather.snowfallCm,
+    temperatureF: args.game.temperatureF ?? auto.weather.temperatureF,
+    qbHome: args.qbHome ?? auto.qbHome,
+    qbAway: args.qbAway ?? auto.qbAway,
+    userHome: (args.userHome ?? 0) + auto.injuryHome + process.homePoints,
+    userAway: (args.userAway ?? 0) + auto.injuryAway + process.awayPoints + travelAway,
+  });
+  adjustments.weatherTotal += process.totalPoints;
+
   const canUseHouse = Boolean(homeFactors && awayFactors);
   const priceWithHouse = args.priceWithHouse !== false && canUseHouse;
   const scores = priceWithHouse && homeFactors && awayFactors
@@ -233,6 +250,29 @@ export function handicapMatchup(args: {
       ...factorDiagnosticRows(homeFactors, awayFactors),
     );
   }
+  if (process.notes.length > 0 || process.homePoints !== 0 || process.awayPoints !== 0 || process.totalPoints !== 0) {
+    diagnostics.unshift({
+      key: "process",
+      label: "Process matchup (capped)",
+      homeValue: `${process.homePoints >= 0 ? "+" : ""}${process.homePoints.toFixed(2)}`,
+      awayValue: `${process.awayPoints >= 0 ? "+" : ""}${process.awayPoints.toFixed(2)}`,
+      note:
+        process.notes.join(" ") ||
+        `Pressure ${process.pressure >= 0 ? "+" : ""}${process.pressure.toFixed(2)}; explosive total ${process.explosiveTotal >= 0 ? "+" : ""}${process.explosiveTotal.toFixed(2)}.`,
+      bettingRelevance:
+        "Success/explosive/pressure/luck already leak into EPA. This only adds the pieces EPA underweights, with tight caps. Not a new House weight.",
+    });
+  }
+  if (travelAway !== 0) {
+    diagnostics.unshift({
+      key: "travel",
+      label: "West Coast early kickoff",
+      homeValue: "—",
+      awayValue: `${travelAway.toFixed(1)} pts`,
+      note: `${args.game.away.abbreviation} is a Pacific team in the 12–2 PM ET window.`,
+      bettingRelevance: "Body-clock / rest-adjacent. Small prior, not a standalone bet.",
+    });
+  }
   const keyNote = keyNumberNote(market?.homeSpread);
   if (keyNote) {
     diagnostics.unshift({
@@ -294,6 +334,38 @@ function factorDiagnosticRows(home: TeamFactors, away: TeamFactors) {
     row("factorOff", "Offense", home.offense.toFixed(0), away.offense.toFixed(0), "Overall offensive efficiency."),
     row("factorDef", "Defense", home.defense.toFixed(0), away.defense.toFixed(0), "Overall defensive efficiency. Higher is better."),
     row("factorRank", "Ranks", home.ranks.toFixed(0), away.ranks.toFixed(0), "Opponent-adjusted net rank, 0-100."),
+    ...(home.process && away.process
+      ? [
+          row(
+            "factorSuccess",
+            "Success rate",
+            `${home.process.successOff.toFixed(0)} / def ${home.process.successDef.toFixed(0)}`,
+            `${away.process.successOff.toFixed(0)} / def ${away.process.successDef.toFixed(0)}`,
+            "Down-to-down efficiency. More stable than third-down or red-zone finishing.",
+          ),
+          row(
+            "factorExplosive",
+            "Explosiveness",
+            `${home.process.explosiveOff.toFixed(0)} / def ${home.process.explosiveDef.toFixed(0)}`,
+            `${away.process.explosiveOff.toFixed(0)} / def ${away.process.explosiveDef.toFixed(0)}`,
+            "Big-play environment. Moves totals more than sides.",
+          ),
+          row(
+            "factorPressure",
+            "Pass rush / protection",
+            `${home.process.passRush.toFixed(0)} / OL ${home.process.protection.toFixed(0)}`,
+            `${away.process.passRush.toFixed(0)} / OL ${away.process.protection.toFixed(0)}`,
+            "Four-man pressure vs sack avoidance. EPA underweights the matchup when both sides are extreme.",
+          ),
+          row(
+            "factorLuck",
+            "Fumble/turnover luck",
+            home.process.turnoverLuck.toFixed(0),
+            away.process.turnoverLuck.toFixed(0),
+            "High = recovering unsustainable fumbles. Faded slightly; not a talent rating.",
+          ),
+        ]
+      : []),
   ];
 }
 

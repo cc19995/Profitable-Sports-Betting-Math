@@ -9,4 +9,5 @@ dist
 .DS_Store
 tsconfig.tsbuildinfo
 data/cache
+data/week-edge.json
 coverage

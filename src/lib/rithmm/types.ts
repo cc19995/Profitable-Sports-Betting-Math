@@ -9,6 +9,21 @@ export type FactorSide = {
   defense: number;
 };
 
+export type ProcessCard = {
+  successOff: number;
+  successDef: number;
+  explosiveOff: number;
+  explosiveDef: number;
+  protection: number;
+  passRush: number;
+  turnoverLuck: number;
+  redZoneOff: number;
+  redZoneDef: number;
+  thirdDownOff: number;
+  thirdDownDef: number;
+  passRate: number;
+};
+
 export type TeamFactors = {
   teamId: string;
   abbreviation: string;
@@ -23,6 +38,7 @@ export type TeamFactors = {
   ranks: number;
   pace: number;
   source: string;
+  process?: ProcessCard;
 };
 
 export type HouseModel = {

@@ -16,6 +16,7 @@ export * from "./calibration";
 export * from "./backtest";
 export * from "./walkForward";
 export * from "./profit";
+export * from "./weeklyEdge";
 export * from "./rithmm/house";
 export * from "./rithmm/types";
 export * from "./rithmm/project";

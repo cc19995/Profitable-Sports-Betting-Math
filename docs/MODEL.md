@@ -45,8 +45,11 @@ Principle-driven, not fit to last week's losers:
 | Key numbers 3 and 7 | Cover equity is lumpy | low |
 | SOS | Records are not probabilities | low |
 | Rest / bye | Modest point adjustment | medium |
-| Wind / dome | Totals first | medium |
-| QB availability | User-entered; model cannot see a late scratch | medium |
+| Wind / precip / dome | Totals first | medium |
+| Injury report (QB, OL cluster, CB) | Expected-score adjustment from ESPN ingest | medium |
+| Process rates (success / explosive / pressure / fumble luck) | Small capped leftover on top of EPA. Caps exist because these already leak into EPA. | medium |
+| Open vs current / consensus tape | Diagnostic; not auto-followed | medium |
+| ESPN headlines | Backup QB flag only | medium |
 | Residual / last-4 form | Shown, not auto-faded | high |
 
 ## Holdout
@@ -60,4 +63,4 @@ The profit rule sits on top of the trust filter: no moneylines, raw edge at leas
 
 ## What this is not
 
-It is not a closer, not an injury feed, not a same-game correlation model, and not advice. Fractional Kelly still loses if P is miscalibrated.
+It is not a closer, not a same-game correlation model, and not advice. Fractional Kelly still loses if P is miscalibrated. Weekly injury / weather / news / market ingest is documented in [WEEKLY_DATA.md](WEEKLY_DATA.md). That file also maps the 32-section handicapping wishlist to applied vs diagnostic vs not-collectable.

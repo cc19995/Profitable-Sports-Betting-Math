@@ -1,0 +1,1609 @@
+{
+  "generatedAt": "2026-09-08T18:54:52.976Z",
+  "notes": {
+    "ncaaf": "Week-level SRS on 2024-2025 only (true pre-Week-1 information). Process cards from 2025 sportsdataverse summaries. Historical Open-Meteo archive weather. Injuries/news/public % are NOT applied — the live APIs are Week 2 state and would leak.",
+    "nfl": "NFL Week 1 has not been played. Original numbers are the Sep 6 House snapshot (no edge object). Process-only adds nflverse leftovers. New numbers add current ESPN injury/weather ingest matched by abbreviation (nflverse id ≠ ESPN id). Still sat by policy.",
+    "liveBookUnchanged": "Profit gate and NFL sit are unchanged. This is a counterfactual, not a retune."
+  },
+  "ncaaf": {
+    "ratedGames": 49,
+    "processMatched": 49,
+    "originalBook": {
+      "n": 22,
+      "wins": 11,
+      "losses": 11,
+      "pushes": 0,
+      "units": -0.6836360806949051,
+      "roi": -0.031074367304313868,
+      "meanP": 0.6137700862219105,
+      "meanEv": 0.17968433916136994,
+      "meanConfidence": 67.81818181818181
+    },
+    "withMetricsBook": {
+      "n": 25,
+      "wins": 12,
+      "losses": 13,
+      "pushes": 0,
+      "units": -1.757710154768979,
+      "roi": -0.07030840619075916,
+      "meanP": 0.6241280000506317,
+      "meanEv": 0.19875682024803978,
+      "meanConfidence": 65.84
+    },
+    "meanAbsMarginShift": 0.7775510204081637,
+    "meanAbsTotalShift": 0.6471224489795926,
+    "pickChanges": [
+      {
+        "matchup": "MIA @ STAN",
+        "from": null,
+        "to": "Over 46.5",
+        "originalP": null,
+        "newP": 0.6815370065617181,
+        "originalEv": null,
+        "newEv": 0.30111610343600725
+      },
+      {
+        "matchup": "ORST @ HOU",
+        "from": "Under 50.5",
+        "to": null,
+        "originalP": 0.6691221595949166,
+        "newP": null,
+        "originalEv": 0.3063813592091229,
+        "newEv": null
+      },
+      {
+        "matchup": "M-OH @ PITT",
+        "from": "Over 47.5",
+        "to": "M-OH +16.5",
+        "originalP": 0.5837204540072505,
+        "newP": 0.6524731289963535,
+        "originalEv": 0.11437541219565994,
+        "newEv": 0.24563051899303834
+      },
+      {
+        "matchup": "BAY @ AUB",
+        "from": "BAY +6.5",
+        "to": null,
+        "originalP": 0.5682341454733084,
+        "newP": null,
+        "originalEv": 0.10940952211455457,
+        "newEv": null
+      },
+      {
+        "matchup": "NIU @ IOWA",
+        "from": null,
+        "to": "Under 44.5",
+        "originalP": null,
+        "newP": 0.6187849956265596,
+        "originalEv": null,
+        "newEv": 0.18131680983252285
+      },
+      {
+        "matchup": "MOST @ TA&M",
+        "from": null,
+        "to": "Over 53.5",
+        "originalP": null,
+        "newP": 0.5956287071269639,
+        "originalEv": null,
+        "newEv": 0.14713676928155994
+      },
+      {
+        "matchup": "ARST @ MEM",
+        "from": "Over 52.5",
+        "to": "MEM -10.5",
+        "originalP": 0.6100631261241385,
+        "newP": 0.6133773861730951,
+        "originalEv": 0.16466596805517342,
+        "newEv": 0.18131941040744226
+      },
+      {
+        "matchup": "WMU @ MICH",
+        "from": null,
+        "to": "Under 50.5",
+        "originalP": null,
+        "newP": 0.5865327312683397,
+        "originalEv": null,
+        "newEv": 0.1451353324762823
+      },
+      {
+        "matchup": "WIS @ ND",
+        "from": null,
+        "to": "Under 45.5",
+        "originalP": null,
+        "newP": 0.5842016547517679,
+        "originalEv": null,
+        "newEv": 0.12512911285525652
+      }
+    ],
+    "featuredSaturday": [
+      {
+        "matchup": "WYO @ CSU",
+        "publishedPick": "Under 46.5",
+        "publishedP": 0.682,
+        "publishedEv": 0.302,
+        "originalTicket": {
+          "label": "Under 46.5",
+          "p": 0.6106149803916628,
+          "ev": 0.16571950802044721
+        },
+        "newTicket": {
+          "label": "Under 46.5",
+          "p": 0.6221380050980521,
+          "ev": 0.18771800973264474
+        },
+        "originalGatePick": "Under 46.5",
+        "newGatePick": "Under 46.5",
+        "originalConfidence": 62,
+        "newConfidence": 62,
+        "dTotal": -0.5069999999999979,
+        "dMargin": -1.240000000000002,
+        "stillClearsGate": true
+      },
+      {
+        "matchup": "CLEM @ LSU",
+        "publishedPick": "Under 49.5",
+        "publishedP": 0.681,
+        "publishedEv": 0.3,
+        "originalTicket": {
+          "label": "Under 49.5",
+          "p": 0.44953338141397997,
+          "ev": -0.1417999082096747
+        },
+        "newTicket": {
+          "label": "Under 49.5",
+          "p": 0.4724540832094675,
+          "ev": -0.09804220478192571
+        },
+        "originalGatePick": "SIT",
+        "newGatePick": "SIT",
+        "originalConfidence": 70,
+        "newConfidence": 70,
+        "dTotal": -0.9699999999999989,
+        "dMargin": -1.274000000000001,
+        "stillClearsGate": false
+      },
+      {
+        "matchup": "WKU @ NEV",
+        "publishedPick": "WKU ML",
+        "publishedP": 0.622,
+        "publishedEv": 0.177,
+        "originalTicket": {
+          "label": "WKU ML",
+          "p": 0.5575876007940348,
+          "ev": 0.05543367293156587
+        },
+        "newTicket": {
+          "label": "WKU ML",
+          "p": 0.5807084342434744,
+          "ev": 0.09919810767514803
+        },
+        "originalGatePick": "Under 51.5",
+        "newGatePick": "Under 51.5",
+        "originalConfidence": 70,
+        "newConfidence": 65,
+        "dTotal": -0.7520000000000024,
+        "dMargin": -1.024000000000001,
+        "stillClearsGate": true
+      },
+      {
+        "matchup": "WMU @ MICH",
+        "publishedPick": "Under 49.5",
+        "publishedP": 0.643,
+        "publishedEv": 0.218,
+        "originalTicket": {
+          "label": "Under 49.5",
+          "p": 0.5181852074593214,
+          "ev": -0.01914942873771308
+        },
+        "newTicket": {
+          "label": "Under 49.5",
+          "p": 0.5632093351233357,
+          "ev": 0.06607481291202832
+        },
+        "originalGatePick": "SIT",
+        "newGatePick": "SIT",
+        "originalConfidence": 62,
+        "newConfidence": 62,
+        "dTotal": -1.9070000000000036,
+        "dMargin": 0.30400000000000027,
+        "stillClearsGate": false
+      },
+      {
+        "matchup": "UNLV @ HAW",
+        "publishedPick": "Over 55.5",
+        "publishedP": 0.664,
+        "publishedEv": 0.257,
+        "originalTicket": {
+          "label": "Over 55.5",
+          "p": 0.5272228685322374,
+          "ev": -0.0020424274211220395
+        },
+        "newTicket": {
+          "label": "Over 55.5",
+          "p": 0.5359340301688027,
+          "ev": 0.014446557105233682
+        },
+        "originalGatePick": "UNLV -2.5",
+        "newGatePick": "UNLV -2.5",
+        "originalConfidence": 70,
+        "newConfidence": 70,
+        "dTotal": 0.367999999999995,
+        "dMargin": 0.4480000000000004,
+        "stillClearsGate": true
+      },
+      {
+        "matchup": "UCLA @ CAL",
+        "publishedPick": "CAL +2.5",
+        "publishedP": 0.64,
+        "publishedEv": 0.267,
+        "originalTicket": {
+          "label": "CAL +2.5",
+          "p": 0.6678841272497342,
+          "ev": 0.3226724872984932
+        },
+        "newTicket": {
+          "label": "CAL +2.5",
+          "p": 0.6790745892672956,
+          "ev": 0.34483399050974217
+        },
+        "originalGatePick": "Under 53.5",
+        "newGatePick": "Under 53.5",
+        "originalConfidence": 70,
+        "newConfidence": 65,
+        "dTotal": -0.18500000000000227,
+        "dMargin": 0.5399999999999991,
+        "stillClearsGate": true
+      }
+    ],
+    "bookedThen": [
+      {
+        "matchup": "UNC @ TCU",
+        "label": "Over 46.5",
+        "type": "total",
+        "p": 0.6390890286693784,
+        "edge": 0.11985825943860917,
+        "ev": 0.23083812928917324,
+        "confidence": 66,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "HAW @ STAN",
+        "label": "HAW +4.5",
+        "type": "spread",
+        "p": 0.5675990667675126,
+        "edge": 0.04378954295798876,
+        "ev": 0.08359821837434223,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "NMSU @ FSU",
+        "label": "Under 53.5",
+        "type": "total",
+        "p": 0.5938906822396122,
+        "edge": 0.07465991300884289,
+        "ev": 0.14378946209110488,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "W",
+        "units": 0.9259259259259258
+      },
+      {
+        "matchup": "MEM @ UNLV",
+        "label": "Over 55.5",
+        "type": "total",
+        "p": 0.6080163242920721,
+        "edge": 0.07971443749961926,
+        "ev": 0.15088804240999365,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "MASS @ RUTG",
+        "label": "Over 55.5",
+        "type": "total",
+        "p": 0.6312122283997681,
+        "edge": 0.12626173335026314,
+        "ev": 0.2500477464387565,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9803921568627452
+      },
+      {
+        "matchup": "UAB @ ILL",
+        "label": "Over 53.5",
+        "type": "total",
+        "p": 0.6064478064615548,
+        "edge": 0.078145919669102,
+        "ev": 0.1479190622308002,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.8928571428571428
+      },
+      {
+        "matchup": "UTEP @ OU",
+        "label": "Under 51.5",
+        "type": "total",
+        "p": 0.5905770527186276,
+        "edge": 0.07838193076740807,
+        "ev": 0.15303138864113008,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "W",
+        "units": 0.9523809523809523
+      },
+      {
+        "matchup": "ORST @ HOU",
+        "label": "Under 50.5",
+        "type": "total",
+        "p": 0.6691221595949166,
+        "edge": 0.1569270376436971,
+        "ev": 0.3063813592091229,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "CCU @ WVU",
+        "label": "Over 54.5",
+        "type": "total",
+        "p": 0.6689019527384819,
+        "edge": 0.14509242892895802,
+        "ev": 0.27699463704619265,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.909090909090909
+      },
+      {
+        "matchup": "LIB @ JMU",
+        "label": "Over 50.5",
+        "type": "total",
+        "p": 0.6068252516694749,
+        "edge": 0.06554084799975013,
+        "ev": 0.1210839395249621,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "BALL @ OSU",
+        "label": "Under 55.5",
+        "type": "total",
+        "p": 0.5990580540181629,
+        "edge": 0.0707561672257101,
+        "ev": 0.13393131653437984,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "M-OH @ PITT",
+        "label": "Over 47.5",
+        "type": "total",
+        "p": 0.5837204540072505,
+        "edge": 0.05991093019772664,
+        "ev": 0.11437541219565994,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "W",
+        "units": 0.909090909090909
+      },
+      {
+        "matchup": "BOIS @ ORE",
+        "label": "Over 53.5",
+        "type": "total",
+        "p": 0.6318706474398288,
+        "edge": 0.11967552548860927,
+        "ev": 0.233652216430142,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9523809523809523
+      },
+      {
+        "matchup": "BAY @ AUB",
+        "label": "BAY +6.5",
+        "type": "spread",
+        "p": 0.5682341454733084,
+        "edge": 0.05603902352208889,
+        "ev": 0.10940952211455457,
+        "confidence": 66,
+        "alignment": 1,
+        "grade": "W",
+        "units": 0.9523809523809523
+      },
+      {
+        "matchup": "TULN @ DUKE",
+        "label": "Over 51.5",
+        "type": "total",
+        "p": 0.6259404722474158,
+        "edge": 0.09105675131718327,
+        "ev": 0.1702365350712558,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "WYO @ CSU",
+        "label": "Under 45.5",
+        "type": "total",
+        "p": 0.5876089209113861,
+        "edge": 0.06837815168061678,
+        "ev": 0.13169125508859536,
+        "confidence": 62,
+        "alignment": 1,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "ARST @ MEM",
+        "label": "Over 52.5",
+        "type": "total",
+        "p": 0.6100631261241385,
+        "edge": 0.08625360231461465,
+        "ev": 0.16466596805517342,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.909090909090909
+      },
+      {
+        "matchup": "SHSU @ TROY",
+        "label": "Under 52.5",
+        "type": "total",
+        "p": 0.6460348013384409,
+        "edge": 0.14108430628893598,
+        "ev": 0.2794022536310301,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9803921568627452
+      },
+      {
+        "matchup": "FAU @ FLA",
+        "label": "Under 59.5",
+        "type": "total",
+        "p": 0.603716394588829,
+        "edge": 0.07541450779637615,
+        "ev": 0.14274888975742628,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "UNLV @ HAW",
+        "label": "UNLV -2.5",
+        "type": "spread",
+        "p": 0.623419841497725,
+        "edge": 0.11122471954650548,
+        "ev": 0.2171530238765107,
+        "confidence": 70,
+        "alignment": 0.82,
+        "grade": "W",
+        "units": 0.9523809523809523
+      },
+      {
+        "matchup": "UCLA @ CAL",
+        "label": "Under 53.5",
+        "type": "total",
+        "p": 0.647599686898951,
+        "edge": 0.1283689176681817,
+        "ev": 0.24722902662020174,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1
+      },
+      {
+        "matchup": "WKU @ NEV",
+        "label": "Under 51.5",
+        "type": "total",
+        "p": 0.5939937987851931,
+        "edge": 0.07476302955442382,
+        "ev": 0.143988056919631,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "L",
+        "units": -1
+      }
+    ],
+    "bookedNow": [
+      {
+        "matchup": "UNC @ TCU",
+        "label": "Over 46.5",
+        "type": "total",
+        "p": 0.6601273195205806,
+        "edge": 0.1408965502898113,
+        "ev": 0.2713563190766737,
+        "confidence": 66,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 0.6300000000000026,
+        "dTotal": 0.9540000000000077
+      },
+      {
+        "matchup": "HAW @ STAN",
+        "label": "HAW +4.5",
+        "type": "spread",
+        "p": 0.5932436609855533,
+        "edge": 0.06943413717602942,
+        "ev": 0.13255608006332897,
+        "confidence": 70,
+        "alignment": 0.82,
+        "grade": "L",
+        "units": -1,
+        "dMargin": -1.142000000000003,
+        "dTotal": -0.26400000000001
+      },
+      {
+        "matchup": "NMSU @ FSU",
+        "label": "Under 53.5",
+        "type": "total",
+        "p": 0.592019667982282,
+        "edge": 0.07278889875151273,
+        "ev": 0.14018602722513562,
+        "confidence": 65,
+        "alignment": 1,
+        "grade": "W",
+        "units": 0.9259259259259258,
+        "dMargin": 0.8979999999999997,
+        "dTotal": 0.08099999999999596
+      },
+      {
+        "matchup": "MEM @ UNLV",
+        "label": "Over 55.5",
+        "type": "total",
+        "p": 0.6440817357975502,
+        "edge": 0.11577984900509741,
+        "ev": 0.2191547141882202,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": -0.21800000000000708,
+        "dTotal": 1.6000000000000014
+      },
+      {
+        "matchup": "MASS @ RUTG",
+        "label": "Over 55.5",
+        "type": "total",
+        "p": 0.6314142628865216,
+        "edge": 0.12646376783701663,
+        "ev": 0.25044785395173874,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9803921568627452,
+        "dMargin": 1.4000000000000021,
+        "dTotal": 0.009000000000000341
+      },
+      {
+        "matchup": "UAB @ ILL",
+        "label": "Over 53.5",
+        "type": "total",
+        "p": 0.6168944303385709,
+        "edge": 0.08859254354611812,
+        "ev": 0.16769302885515214,
+        "confidence": 65,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.8928571428571428,
+        "dMargin": 0.8179999999999978,
+        "dTotal": 0.4579999999999984
+      },
+      {
+        "matchup": "UTEP @ OU",
+        "label": "Under 51.5",
+        "type": "total",
+        "p": 0.6513288379282809,
+        "edge": 0.13913371597706137,
+        "ev": 0.27164201690759593,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9523809523809523,
+        "dMargin": 0.8000000000000043,
+        "dTotal": -2.686
+      },
+      {
+        "matchup": "MIA @ STAN",
+        "label": "Over 46.5",
+        "type": "total",
+        "p": 0.6815370065617181,
+        "edge": 0.15772748275219428,
+        "ev": 0.30111610343600725,
+        "confidence": 65,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.909090909090909,
+        "dMargin": -1.3999999999999986,
+        "dTotal": -0.6530000000000058
+      },
+      {
+        "matchup": "CCU @ WVU",
+        "label": "Over 54.5",
+        "type": "total",
+        "p": 0.6615527370051695,
+        "edge": 0.13774321319564564,
+        "ev": 0.262964316100778,
+        "confidence": 57,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.909090909090909,
+        "dMargin": 0.34999999999999787,
+        "dTotal": -0.33899999999999864
+      },
+      {
+        "matchup": "LIB @ JMU",
+        "label": "Over 50.5",
+        "type": "total",
+        "p": 0.5887025908615021,
+        "edge": 0.04741818719177737,
+        "ev": 0.08760309159158863,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 1.3999999999999986,
+        "dTotal": -0.7870000000000061
+      },
+      {
+        "matchup": "BALL @ OSU",
+        "label": "Under 55.5",
+        "type": "total",
+        "p": 0.6183944911001757,
+        "edge": 0.09009260430772292,
+        "ev": 0.1705324295824755,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 1.7000000000000028,
+        "dTotal": -0.8460000000000036
+      },
+      {
+        "matchup": "M-OH @ PITT",
+        "label": "M-OH +16.5",
+        "type": "spread",
+        "p": 0.6524731289963535,
+        "edge": 0.12866360518682962,
+        "ev": 0.24563051899303834,
+        "confidence": 70,
+        "alignment": 0.82,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 0.32200000000000273,
+        "dTotal": -0.6069999999999993
+      },
+      {
+        "matchup": "BOIS @ ORE",
+        "label": "Over 53.5",
+        "type": "total",
+        "p": 0.6522914444152863,
+        "edge": 0.14009632246406678,
+        "ev": 0.2735213914774637,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9523809523809523,
+        "dMargin": 0.5120000000000005,
+        "dTotal": 0.9189999999999969
+      },
+      {
+        "matchup": "TULN @ DUKE",
+        "label": "Over 51.5",
+        "type": "total",
+        "p": 0.640706071388879,
+        "edge": 0.10582235045864652,
+        "ev": 0.19784178564007826,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": -0.06199999999999761,
+        "dTotal": 0.6589999999999989
+      },
+      {
+        "matchup": "NIU @ IOWA",
+        "label": "Under 44.5",
+        "type": "total",
+        "p": 0.6187849956265596,
+        "edge": 0.0949754718170358,
+        "ev": 0.18131680983252285,
+        "confidence": 65,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.909090909090909,
+        "dMargin": 1.3999999999999986,
+        "dTotal": -1.6000000000000014
+      },
+      {
+        "matchup": "WYO @ CSU",
+        "label": "Under 45.5",
+        "type": "total",
+        "p": 0.5993159931920148,
+        "edge": 0.08008522396124551,
+        "ev": 0.15423820911054698,
+        "confidence": 62,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": -1.240000000000002,
+        "dTotal": -0.5069999999999979
+      },
+      {
+        "matchup": "MOST @ TA&M",
+        "label": "Over 53.5",
+        "type": "total",
+        "p": 0.5956287071269639,
+        "edge": 0.07639793789619465,
+        "ev": 0.14713676928155994,
+        "confidence": 70,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 1.7000000000000028,
+        "dTotal": 0.6809999999999974
+      },
+      {
+        "matchup": "ARST @ MEM",
+        "label": "MEM -10.5",
+        "type": "spread",
+        "p": 0.6133773861730951,
+        "edge": 0.09414661694232584,
+        "ev": 0.18131941040744226,
+        "confidence": 62,
+        "alignment": 0.82,
+        "grade": "W",
+        "units": 0.9259259259259258,
+        "dMargin": 0.4659999999999975,
+        "dTotal": 0
+      },
+      {
+        "matchup": "SHSU @ TROY",
+        "label": "Under 52.5",
+        "type": "total",
+        "p": 0.6543448702468306,
+        "edge": 0.14939437519732568,
+        "ev": 0.295859448920194,
+        "confidence": 65,
+        "alignment": 0.8,
+        "grade": "W",
+        "units": 0.9803921568627452,
+        "dMargin": -0.06599999999999895,
+        "dTotal": -0.37700000000000244
+      },
+      {
+        "matchup": "WMU @ MICH",
+        "label": "Under 50.5",
+        "type": "total",
+        "p": 0.5865327312683397,
+        "edge": 0.07433760931712019,
+        "ev": 0.1451353324762823,
+        "confidence": 62,
+        "alignment": 1,
+        "grade": "W",
+        "units": 0.9523809523809523,
+        "dMargin": 0.30400000000000027,
+        "dTotal": -1.9070000000000036
+      },
+      {
+        "matchup": "FAU @ FLA",
+        "label": "Under 59.5",
+        "type": "total",
+        "p": 0.5897056989496136,
+        "edge": 0.06140381215716073,
+        "ev": 0.11622864444033998,
+        "confidence": 70,
+        "alignment": 1,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 0.1340000000000039,
+        "dTotal": 0.6080000000000041
+      },
+      {
+        "matchup": "UNLV @ HAW",
+        "label": "UNLV -2.5",
+        "type": "spread",
+        "p": 0.6136051793634261,
+        "edge": 0.10141005741220654,
+        "ev": 0.19799106447145087,
+        "confidence": 70,
+        "alignment": 0.82,
+        "grade": "W",
+        "units": 0.9523809523809523,
+        "dMargin": 0.4480000000000004,
+        "dTotal": 0.367999999999995
+      },
+      {
+        "matchup": "UCLA @ CAL",
+        "label": "Under 53.5",
+        "type": "total",
+        "p": 0.651679988758417,
+        "edge": 0.13244921952764777,
+        "ev": 0.25508738575695133,
+        "confidence": 65,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 0.5399999999999991,
+        "dTotal": -0.18500000000000227
+      },
+      {
+        "matchup": "WKU @ NEV",
+        "label": "Under 51.5",
+        "type": "total",
+        "p": 0.61125541004034,
+        "edge": 0.09202464080957073,
+        "ev": 0.17723264155917318,
+        "confidence": 65,
+        "alignment": 0.8,
+        "grade": "L",
+        "units": -1,
+        "dMargin": -1.024000000000001,
+        "dTotal": -0.7520000000000024
+      },
+      {
+        "matchup": "WIS @ ND",
+        "label": "Under 45.5",
+        "type": "total",
+        "p": 0.5842016547517679,
+        "edge": 0.06497088552099861,
+        "ev": 0.12512911285525652,
+        "confidence": 58,
+        "alignment": 1,
+        "grade": "L",
+        "units": -1,
+        "dMargin": 1.4000000000000021,
+        "dTotal": -0.4200000000000017
+      }
+    ]
+  },
+  "nflWeek1": {
+    "matched": 16,
+    "games": 16,
+    "meanAbsMarginShift": 1.5781874999999999,
+    "meanAbsTotalShift": 0.4690624999999997,
+    "meanOriginalConfidence": 66.25,
+    "meanNewConfidence": 65.625,
+    "meanOriginalTopP": 0.528174991427258,
+    "meanNewTopP": 0.5408855260500356,
+    "meanOriginalTopEv": 0.2793606878933558,
+    "meanNewTopEv": 0.3003619427053663,
+    "rows": [
+      {
+        "matchup": "NE @ SEA",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 2.2112942563357905,
+          "total": 43.604858586019326
+        },
+        "processOnlyModel": {
+          "margin": 3.611294256335789,
+          "total": 43.85285858601932
+        },
+        "newModel": {
+          "margin": 3.8902942563357925,
+          "total": 43.85285858601932
+        },
+        "dMargin": 1.679000000000002,
+        "dTotal": 0.24799999999999756,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 62,
+        "originalTop": {
+          "label": "NE ML",
+          "p": 0.43634650874336917,
+          "ev": 0.09086627185842278
+        },
+        "processOnlyTop": {
+          "label": "SEA -3.5",
+          "p": 0.5152173744413535,
+          "ev": 0.005900588195023593
+        },
+        "newTop": {
+          "label": "SEA -3.5",
+          "p": 0.5232815096836718,
+          "ev": 0.021644852239549817
+        },
+        "notes": [
+          "SEA injuries −2.1 pts",
+          "NE injuries −2.4 pts",
+          "76°F, wind 7 mph"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": -0.032,
+        "injuryAway": -0.311
+      },
+      {
+        "matchup": "SF @ LA",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 5.285665326443208,
+          "total": 49.25931972662414
+        },
+        "processOnlyModel": {
+          "margin": 6.685665326443207,
+          "total": 49.197319726624144
+        },
+        "newModel": {
+          "margin": 9.13266532644321,
+          "total": 49.197319726624144
+        },
+        "dMargin": 3.8470000000000013,
+        "dTotal": -0.06199999999999761,
+        "originalConfidence": 66,
+        "processOnlyConfidence": 66,
+        "newConfidence": 66,
+        "originalTop": {
+          "label": "LA -3.5",
+          "p": 0.5634778939325058,
+          "ev": 0.08521668461075182
+        },
+        "processOnlyTop": {
+          "label": "LA -3.5",
+          "p": 0.6032824663273333,
+          "ev": 0.16187734255634556
+        },
+        "newTop": {
+          "label": "LA -3.5",
+          "p": 0.6704233727362425,
+          "ev": 0.2911857548994299
+        },
+        "notes": [
+          "LAR injuries −2.1 pts",
+          "SF QB Kurtis Rourke (-1.3)",
+          "81°F, wind 7 mph",
+          "spread moved -1.0"
+        ],
+        "qbHome": -0.4,
+        "qbAway": -1.33,
+        "injuryHome": 0.309,
+        "injuryAway": -1.208
+      },
+      {
+        "matchup": "CHI @ CAR",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": -1.2984599630252305,
+          "total": 47.089715827459834
+        },
+        "processOnlyModel": {
+          "margin": -1.4564599630252317,
+          "total": 47.43871582745983
+        },
+        "newModel": {
+          "margin": -4.291459963025233,
+          "total": 47.43871582745983
+        },
+        "dMargin": -2.993000000000002,
+        "dTotal": 0.34899999999999665,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "CAR ML",
+          "p": 0.4625182544192671,
+          "ev": 0.06379198516431428
+        },
+        "processOnlyTop": {
+          "label": "CAR ML",
+          "p": 0.45797338345297933,
+          "ev": 0.05333878194185249
+        },
+        "newTop": {
+          "label": "CHI -2.5",
+          "p": 0.5636440088672523,
+          "ev": 0.041308423161533936
+        },
+        "notes": [
+          "CAR QB Haynes King (-1.3)",
+          "CHI injuries −3.1 pts",
+          "84°F, wind 4 mph"
+        ],
+        "qbHome": -1.33,
+        "qbAway": 0,
+        "injuryHome": -1.186,
+        "injuryAway": 0.319
+      },
+      {
+        "matchup": "TB @ CIN",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 1.2516999535572353,
+          "total": 49.075621453131745
+        },
+        "processOnlyModel": {
+          "margin": 2.337699953557234,
+          "total": 49.84562145313175
+        },
+        "newModel": {
+          "margin": 1.9206999535572322,
+          "total": 49.84562145313175
+        },
+        "dMargin": 0.6689999999999969,
+        "dTotal": 0.7700000000000031,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "TB ML",
+          "p": 0.4638642726890565,
+          "ev": 0.2524335362604526
+        },
+        "processOnlyTop": {
+          "label": "TB ML",
+          "p": 0.43274158285254344,
+          "ev": 0.16840227370186733
+        },
+        "newTop": {
+          "label": "TB ML",
+          "p": 0.444653472667808,
+          "ev": 0.20056437620308176
+        },
+        "notes": [
+          "CIN injuries −1.4 pts",
+          "86°F, wind 2 mph"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": -0.204,
+        "injuryAway": 0.213
+      },
+      {
+        "matchup": "NO @ DET",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 5.594892247754402,
+          "total": 44.93753139420996
+        },
+        "processOnlyModel": {
+          "margin": 6.852892247754397,
+          "total": 45.30753139420996
+        },
+        "newModel": {
+          "margin": 5.218892247754397,
+          "total": 45.30753139420996
+        },
+        "dMargin": -0.3760000000000048,
+        "dTotal": 0.36999999999999744,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "Under 49.5",
+          "p": 0.6323035072496354,
+          "ev": 0.23449732367785958
+        },
+        "processOnlyTop": {
+          "label": "Under 49.5",
+          "p": 0.6219297875290795,
+          "ev": 0.21424387089010755
+        },
+        "newTop": {
+          "label": "NO ML",
+          "p": 0.35264827640637186,
+          "ev": 0.23426896742230152
+        },
+        "notes": [
+          "DET injuries −3.5 pts",
+          "NO injuries −1.8 pts"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": -0.924,
+        "injuryAway": 0.71
+      },
+      {
+        "matchup": "BUF @ HOU",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 0.05589931360738376,
+          "total": 44.02663122164053
+        },
+        "processOnlyModel": {
+          "margin": -0.5101006863926187,
+          "total": 43.57863122164053
+        },
+        "newModel": {
+          "margin": -1.2091006863926168,
+          "total": 43.57863122164053
+        },
+        "dMargin": -1.2650000000000006,
+        "dTotal": -0.4480000000000004,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "HOU +1.5",
+          "p": 0.5448842125543605,
+          "ev": 0.018696571297282638
+        },
+        "processOnlyTop": {
+          "label": "Under 44.5",
+          "p": 0.5272065732905721,
+          "ev": 0.006485276282001129
+        },
+        "newTop": {
+          "label": "Under 44.5",
+          "p": 0.5272065732905721,
+          "ev": 0.006485276282001129
+        },
+        "notes": [
+          "HOU injuries −2.6 pts",
+          "BUF injuries −1.9 pts"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": -0.561,
+        "injuryAway": 0.138
+      },
+      {
+        "matchup": "BAL @ IND",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 0.5877494173196993,
+          "total": 47.64682199603688
+        },
+        "processOnlyModel": {
+          "margin": 1.0417494173197,
+          "total": 49.20682199603688
+        },
+        "newModel": {
+          "margin": 1.2697494173196944,
+          "total": 49.20682199603688
+        },
+        "dMargin": 0.681999999999995,
+        "dTotal": 1.5600000000000023,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "IND ML",
+          "p": 0.5169860943115099,
+          "ev": 0.2924652357787747
+        },
+        "processOnlyTop": {
+          "label": "IND ML",
+          "p": 0.5300872786246444,
+          "ev": 0.325218196561611
+        },
+        "newTop": {
+          "label": "IND ML",
+          "p": 0.5366553431322975,
+          "ev": 0.3416383578307436
+        },
+        "notes": [
+          "IND injuries −1.2 pts",
+          "BAL injuries −1.4 pts"
+        ],
+        "qbHome": 0,
+        "qbAway": -0.4,
+        "injuryHome": -0.058,
+        "injuryAway": 0.114
+      },
+      {
+        "matchup": "CLE @ JAX",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 3.5913624101654094,
+          "total": 39.72955544184396
+        },
+        "processOnlyModel": {
+          "margin": 1.9213624101654148,
+          "total": 39.42055544184396
+        },
+        "newModel": {
+          "margin": 1.85636241016541,
+          "total": 39.42055544184396
+        },
+        "dMargin": -1.7349999999999994,
+        "dTotal": -0.3089999999999975,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 62,
+        "originalTop": {
+          "label": "CLE ML",
+          "p": 0.39733797604160703,
+          "ev": 0.6688194993747496
+        },
+        "processOnlyTop": {
+          "label": "CLE ML",
+          "p": 0.44463450650113956,
+          "ev": 0.8674649273047863
+        },
+        "newTop": {
+          "label": "CLE ML",
+          "p": 0.44649605708956347,
+          "ev": 0.8752834397761666
+        },
+        "notes": [
+          "JAX injuries −1.3 pts",
+          "CLE injuries −1.2 pts",
+          "96°F, wind 5 mph",
+          "spread moved -1.5"
+        ],
+        "qbHome": 0,
+        "qbAway": -0.4,
+        "injuryHome": -0.739,
+        "injuryAway": -0.274
+      },
+      {
+        "matchup": "ATL @ PIT",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 1.6696418059334164,
+          "total": 45.29565346439328
+        },
+        "processOnlyModel": {
+          "margin": 0.9136418059334162,
+          "total": 45.23765346439328
+        },
+        "newModel": {
+          "margin": 3.761641805933415,
+          "total": 45.23765346439328
+        },
+        "dMargin": 2.0919999999999987,
+        "dTotal": -0.05799999999999983,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "ATL ML",
+          "p": 0.45185001541110154,
+          "ev": 0.1476990391441979
+        },
+        "processOnlyTop": {
+          "label": "ATL ML",
+          "p": 0.47360686902661125,
+          "ev": 0.20296144732759247
+        },
+        "newTop": {
+          "label": "Over 42.5",
+          "p": 0.580350051960403,
+          "ev": 0.13306438716078683
+        },
+        "notes": [
+          "PIT injuries −2.0 pts",
+          "ATL QB Michael Penix Jr. (-3.8)",
+          "81°F, wind 3 mph"
+        ],
+        "qbHome": 0,
+        "qbAway": -3.8,
+        "injuryHome": 0.16,
+        "injuryAway": 1.112
+      },
+      {
+        "matchup": "NYJ @ TEN",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 1.1580071627458821,
+          "total": 44.615931164121015
+        },
+        "processOnlyModel": {
+          "margin": 1.0460071627458802,
+          "total": 44.792931164121015
+        },
+        "newModel": {
+          "margin": 0.6840071627458855,
+          "total": 44.792931164121015
+        },
+        "dMargin": -0.47399999999999665,
+        "dTotal": 0.1769999999999996,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 62,
+        "originalTop": {
+          "label": "Over 39.5",
+          "p": 0.6476403658633147,
+          "ev": 0.26444071430456684
+        },
+        "processOnlyTop": {
+          "label": "Over 39.5",
+          "p": 0.6524963223843978,
+          "ev": 0.2739213913219194
+        },
+        "newTop": {
+          "label": "Over 39.5",
+          "p": 0.6524963223843978,
+          "ev": 0.2739213913219194
+        },
+        "notes": [
+          "TEN QB Mitchell Trubisky (-1.3)",
+          "NYJ injuries −2.6 pts",
+          "90°F, wind 6 mph",
+          "spread moved +1.5"
+        ],
+        "qbHome": -1.33,
+        "qbAway": 0,
+        "injuryHome": 1.169,
+        "injuryAway": 0.201
+      },
+      {
+        "matchup": "ARI @ LAC",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 5.726137128978969,
+          "total": 44.57527215766084
+        },
+        "processOnlyModel": {
+          "margin": 6.724137128978967,
+          "total": 44.17627215766084
+        },
+        "newModel": {
+          "margin": 5.4921371289789676,
+          "total": 44.17627215766084
+        },
+        "dMargin": -0.23400000000000176,
+        "dTotal": -0.3990000000000009,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 57,
+        "originalTop": {
+          "label": "ARI ML",
+          "p": 0.33909388105969224,
+          "ev": 0.8311069577223382
+        },
+        "processOnlyTop": {
+          "label": "ARI ML",
+          "p": 0.31303835661525103,
+          "ev": 0.6904071257223556
+        },
+        "newTop": {
+          "label": "ARI ML",
+          "p": 0.34532216363289,
+          "ev": 0.864739683617606
+        },
+        "notes": [
+          "LAC injuries −2.5 pts",
+          "ARI injuries −1.3 pts",
+          "76°F, wind 10 mph",
+          "spread moved +2.0"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": -2.009,
+        "injuryAway": -0.777
+      },
+      {
+        "matchup": "MIA @ LV",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": -3.6638415647064235,
+          "total": 42.596221637217326
+        },
+        "processOnlyModel": {
+          "margin": -4.019841564706425,
+          "total": 42.18722163721733
+        },
+        "newModel": {
+          "margin": -2.813841564706429,
+          "total": 42.18722163721733
+        },
+        "dMargin": 0.8499999999999943,
+        "dTotal": -0.4089999999999989,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 62,
+        "originalTop": {
+          "label": "MIA ML",
+          "p": 0.6046861532959086,
+          "ev": 0.5721839985693622
+        },
+        "processOnlyTop": {
+          "label": "MIA ML",
+          "p": 0.61458626162583,
+          "ev": 0.5979242802271578
+        },
+        "newTop": {
+          "label": "MIA ML",
+          "p": 0.580784760338227,
+          "ev": 0.5100403768793902
+        },
+        "notes": [
+          "MIA injuries −1.9 pts"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": 1.19,
+        "injuryAway": -0.016
+      },
+      {
+        "matchup": "GB @ MIN",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": -1.6651201919232648,
+          "total": 43.73009969441902
+        },
+        "processOnlyModel": {
+          "margin": -1.5991201919232623,
+          "total": 43.25109969441902
+        },
+        "newModel": {
+          "margin": -0.06512019192326335,
+          "total": 43.25109969441902
+        },
+        "dMargin": 1.6000000000000014,
+        "dTotal": -0.4789999999999992,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 57,
+        "originalTop": {
+          "label": "GB +1.5",
+          "p": 0.5907040479060749,
+          "ev": 0.11811837639364176
+        },
+        "processOnlyTop": {
+          "label": "GB +1.5",
+          "p": 0.5888445833480525,
+          "ev": 0.11459867562309922
+        },
+        "newTop": {
+          "label": "Under 46.5",
+          "p": 0.5950903494929856,
+          "ev": 0.1125602186173209
+        },
+        "notes": [
+          "GB injuries −2.7 pts",
+          "spread moved -3.0",
+          "books disagree by 1.5+ pts"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": 0.96,
+        "injuryAway": -0.574
+      },
+      {
+        "matchup": "WAS @ PHI",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 9.798469383526381,
+          "total": 47.308384400659435
+        },
+        "processOnlyModel": {
+          "margin": 9.366469383526379,
+          "total": 46.966384400659436
+        },
+        "newModel": {
+          "margin": 10.764469383526382,
+          "total": 46.966384400659436
+        },
+        "dMargin": 0.9660000000000011,
+        "dTotal": -0.34199999999999875,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "PHI -5.5",
+          "p": 0.6222833084962782,
+          "ev": 0.2149340784927336
+        },
+        "processOnlyTop": {
+          "label": "PHI -5.5",
+          "p": 0.6103298235745398,
+          "ev": 0.19159632221695855
+        },
+        "newTop": {
+          "label": "PHI -5.5",
+          "p": 0.6485776090900033,
+          "ev": 0.2662705701281016
+        },
+        "notes": [
+          "PHI injuries −1.8 pts",
+          "WSH QB Marcus Mariota (-1.3)",
+          "77°F, wind 5 mph"
+        ],
+        "qbHome": 0,
+        "qbAway": -1.33,
+        "injuryHome": 0.186,
+        "injuryAway": 0.118
+      },
+      {
+        "matchup": "DAL @ NYG",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": 4.844800050094747,
+          "total": 49.652907128181155
+        },
+        "processOnlyModel": {
+          "margin": 3.2388000500947456,
+          "total": 49.93190712818116
+        },
+        "newModel": {
+          "margin": 2.109800050094748,
+          "total": 49.93190712818116
+        },
+        "dMargin": -2.7349999999999994,
+        "dTotal": 0.27900000000000347,
+        "originalConfidence": 70,
+        "processOnlyConfidence": 70,
+        "newConfidence": 70,
+        "originalTop": {
+          "label": "NYG ML",
+          "p": 0.6372329436715096,
+          "ev": 0.4274017938241814
+        },
+        "processOnlyTop": {
+          "label": "NYG ML",
+          "p": 0.5927774726708255,
+          "ev": 0.3278215387826491
+        },
+        "newTop": {
+          "label": "NYG ML",
+          "p": 0.5607551621146522,
+          "ev": 0.2560915631368208
+        },
+        "notes": [
+          "NYG injuries −2.6 pts",
+          "DAL injuries −1.4 pts",
+          "73°F, wind 6 mph"
+        ],
+        "qbHome": 0,
+        "qbAway": 0,
+        "injuryHome": -0.926,
+        "injuryAway": 0.203
+      },
+      {
+        "matchup": "DEN @ KC",
+        "edgeMatched": true,
+        "originalModel": {
+          "margin": -1.371744719276272,
+          "total": 43.97093332994625
+        },
+        "processOnlyModel": {
+          "margin": -3.2217447192762734,
+          "total": 42.724933329946246
+        },
+        "newModel": {
+          "margin": -4.425744719276274,
+          "total": 42.724933329946246
+        },
+        "dMargin": -3.054000000000002,
+        "dTotal": -1.2460000000000022,
+        "originalConfidence": 62,
+        "processOnlyConfidence": 62,
+        "newConfidence": 62,
+        "originalTop": {
+          "label": "DEN ML",
+          "p": 0.539590427190938,
+          "ev": 0.18709893982006354
+        },
+        "processOnlyTop": {
+          "label": "DEN ML",
+          "p": 0.5922977475350516,
+          "ev": 0.30305504457711363
+        },
+        "newTop": {
+          "label": "DEN ML",
+          "p": 0.6257833839132302,
+          "ev": 0.37672344460910656
+        },
+        "notes": [
+          "KC QB Patrick Mahomes (-1.3)",
+          "DEN injuries −2.3 pts",
+          "86°F, wind 12 mph"
+        ],
+        "qbHome": -1.33,
+        "qbAway": 0,
+        "injuryHome": -0.105,
+        "injuryAway": -0.231
+      }
+    ]
+  }
+}

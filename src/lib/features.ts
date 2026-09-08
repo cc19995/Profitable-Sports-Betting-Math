@@ -21,6 +21,17 @@ function fmt(value: number, digits = 1): string {
   return `${sign}${value.toFixed(digits)}`;
 }
 
+function pythagLabel(team: TeamRating): string {
+  if (team.wins === undefined || team.pythagoreanWins === undefined) {
+    return "n/a";
+  }
+  const oneScore =
+    team.oneScoreGames && team.oneScoreGames > 0
+      ? ` · ${team.oneScoreWins ?? 0}-${team.oneScoreGames - (team.oneScoreWins ?? 0)} one-score`
+      : "";
+  return `${team.wins.toFixed(0)}W / ${team.pythagoreanWins.toFixed(1)} pyth${oneScore}`;
+}
+
 function gameEdge(game: UpcomingGame | CompletedGame): GameEdgeContext | undefined {
   return "edge" in game ? game.edge : undefined;
 }
@@ -64,6 +75,15 @@ function marketMoveNote(market: MarketLines | undefined, consensus: MarketConsen
   }
   if (consensus?.steamHint) {
     bits.push("Books disagree by 1.5+ points.");
+  }
+  if (consensus?.espnMlHomeImpliedMove !== undefined) {
+    bits.push(`Home ML implied P moved ${fmt(100 * consensus.espnMlHomeImpliedMove, 1)} pp.`);
+  }
+  if (consensus?.publicHomeSpreadPct !== undefined) {
+    bits.push(`Public tickets on home ${consensus.publicHomeSpreadPct.toFixed(0)}%.`);
+  }
+  if (consensus?.ticketMoneyDivergence !== undefined && Math.abs(consensus.ticketMoneyDivergence) >= 15) {
+    bits.push(`Ticket/money divergence ${fmt(consensus.ticketMoneyDivergence, 0)} pp — not auto-followed.`);
   }
   if (bits.length === 0) {
     return "No open/consensus tape on this game.";
@@ -137,6 +157,14 @@ export function buildDiagnostics(args: {
       bettingRelevance: "Surface this; do not automatically fade it. Persistent residuals can be missing QB/scheme info. Large L4 residuals are usually noise.",
     },
     {
+      key: "pythag",
+      label: "Pythagorean vs actual wins",
+      homeValue: pythagLabel(args.home),
+      awayValue: pythagLabel(args.away),
+      note: "Expected wins from points scored/allowed (exponent 2.37). One-score clustering is listed when present.",
+      bettingRelevance: "A team well ahead of Pythagorean + winning close games is often overbid. Diagnostic only — already partly in residual margin.",
+    },
+    {
       key: "form",
       label: "Last-4 residual",
       homeValue: fmt(args.home.last4Residual),
@@ -186,7 +214,7 @@ export function buildDiagnostics(args: {
       homeValue: edge?.market.espnSpreadMove !== undefined ? fmt(edge.market.espnSpreadMove) : "n/a",
       awayValue: edge?.market.consensusHomeSpread !== undefined ? fmt(edge.market.consensusHomeSpread) : "n/a",
       note: marketMoveNote(args.market, edge?.market),
-      bettingRelevance: "Line movement is information, not a bet. Do not automatically fade or follow steam. Price the number you can actually bet.",
+      bettingRelevance: "Line movement is information, not a bet. Do not automatically fade or follow steam. Price the number you can actually bet. Public % is stored when Action Network sends it; the free payload is usually null.",
     },
     {
       key: "news",
@@ -335,6 +363,18 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
       why: "Bettors overweight recency. Four games is not a new rating.",
       howUsed: "Shown as a warning, lightly weighted in the rating decay already.",
       overfitRisk: "high",
+    },
+    {
+      stat: "Process rates (success, explosive, pressure, fumble luck)",
+      why: "EPA already has most of this. Pressure matchups, explosive environment, and 50/50 fumble recoveries are the leftovers.",
+      howUsed: "Small capped points on SRS and House expected score. Pythagorean/one-score shown, not auto-faded.",
+      overfitRisk: "medium",
+    },
+    {
+      stat: "Closing Line Value",
+      why: "Whether you beat the close is the best personal skill metric. It is not a live feature.",
+      howUsed: "Grade after the close exists. Do not put CLV into P.",
+      overfitRisk: "low",
     },
   ];
 }

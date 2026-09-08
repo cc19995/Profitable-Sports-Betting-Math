@@ -146,6 +146,12 @@ interface ActionOdds {
   total?: number;
   ml_home?: number;
   ml_away?: number;
+  spread_home_public?: number | null;
+  spread_away_public?: number | null;
+  spread_home_money?: number | null;
+  spread_away_money?: number | null;
+  ml_home_public?: number | null;
+  ml_away_public?: number | null;
 }
 
 interface ActionGame {
@@ -289,6 +295,10 @@ function actionTeam(game: ActionGame, teamId: number | undefined): ActionTeam | 
   return game.teams?.find((team) => team.id === teamId);
 }
 
+function finiteOrUndef(value: number | null | undefined): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 export function parseActionGame(game: ActionGame): {
   homeAbbr?: string;
   awayAbbr?: string;
@@ -315,6 +325,12 @@ export function parseActionGame(game: ActionGame): {
       homeMoneyline: row.ml_home,
       awayMoneyline: row.ml_away,
       updatedIso: row.inserted,
+      spreadHomePublic: finiteOrUndef(row.spread_home_public),
+      spreadAwayPublic: finiteOrUndef(row.spread_away_public),
+      spreadHomeMoney: finiteOrUndef(row.spread_home_money),
+      spreadAwayMoney: finiteOrUndef(row.spread_away_money),
+      mlHomePublic: finiteOrUndef(row.ml_home_public),
+      mlAwayPublic: finiteOrUndef(row.ml_away_public),
     });
   }
   return {

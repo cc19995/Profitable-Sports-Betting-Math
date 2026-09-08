@@ -99,6 +99,16 @@ function MatchupInner() {
                     <div className="mute">
                       ESPN move {game.edge.market.espnSpreadMove ?? "—"} · {game.edge.market.books.length} books
                     </div>
+                    {game.edge.market.publicHomeSpreadPct !== undefined ? (
+                      <div className="mute">
+                        Public home {game.edge.market.publicHomeSpreadPct.toFixed(0)}%
+                        {game.edge.market.publicHomeMoneyPct !== undefined
+                          ? ` / money ${game.edge.market.publicHomeMoneyPct.toFixed(0)}%`
+                          : ""}
+                      </div>
+                    ) : (
+                      <div className="mute">Public % not on the free Action Network payload</div>
+                    )}
                   </div>
                 </div>
                 {game.edge.news.length > 0 ? (

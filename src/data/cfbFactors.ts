@@ -4,6 +4,7 @@ import { cachedDownload } from "./httpCache";
 import { csvNumber, parseCsvLine } from "./csv";
 import { indexFactors, lookupFactors, type FactorStore } from "@/src/lib/rithmm/store";
 import { scoresFromRaw } from "@/src/lib/rithmm/normalize";
+import { processCard } from "@/src/lib/processMatchup";
 import type { TeamFactors } from "@/src/lib/rithmm/types";
 
 const BASE = "https://github.com/sportsdataverse/sportsdataverse-data/releases/download";
@@ -22,6 +23,19 @@ type CfbWeekRow = {
   defEpa: number;
   netEpa: number;
   pace: number;
+  successOff?: number;
+  successDef?: number;
+  explosiveOff?: number;
+  explosiveDef?: number;
+  havocOff?: number;
+  havocDef?: number;
+  redZoneOff?: number;
+  redZoneDef?: number;
+  thirdDownOff?: number;
+  thirdDownDef?: number;
+  passRateOff?: number;
+  stuffedOff?: number;
+  stuffedDef?: number;
 };
 
 async function loadSeasonSummaries(season: number): Promise<CfbWeekRow[]> {
@@ -57,6 +71,19 @@ async function loadSeasonSummaries(season: number): Promise<CfbWeekRow[]> {
       defEpa: csvNumber(rec.adj_def_epa) ?? csvNumber(rec.EPAplay_def) ?? 0,
       netEpa: csvNumber(rec.net_adj_epa) ?? 0,
       pace: csvNumber(rec.playsgame_off) ?? 72,
+      successOff: csvNumber(rec.success_off),
+      successDef: csvNumber(rec.success_def),
+      explosiveOff: csvNumber(rec.explosive_off),
+      explosiveDef: csvNumber(rec.explosive_def),
+      havocOff: csvNumber(rec.havoc_off),
+      havocDef: csvNumber(rec.havoc_def),
+      redZoneOff: csvNumber(rec.red_zone_success_off),
+      redZoneDef: csvNumber(rec.red_zone_success_def),
+      thirdDownOff: csvNumber(rec.third_down_success_off),
+      thirdDownDef: csvNumber(rec.third_down_success_def),
+      passRateOff: csvNumber(rec.passrate_off),
+      stuffedOff: csvNumber(rec.play_stuffed_off),
+      stuffedDef: csvNumber(rec.play_stuffed_def),
     });
   }
   return rows;
@@ -86,7 +113,7 @@ function latestUsableWeek(rows: CfbWeekRow[], season: number): number {
   return bestWeek;
 }
 
-function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): TeamFactors[] {
+export function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): TeamFactors[] {
   const passOff = new Map<string, number>();
   const rushOff = new Map<string, number>();
   const passDef = new Map<string, number>();
@@ -95,6 +122,20 @@ function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): T
   const defense = new Map<string, number>();
   const ranks = new Map<string, number>();
   const meta = new Map<string, CfbWeekRow>();
+  const successOff = new Map<string, number>();
+  const successDef = new Map<string, number>();
+  const explosiveOff = new Map<string, number>();
+  const explosiveDef = new Map<string, number>();
+  const havocOff = new Map<string, number>();
+  const havocDef = new Map<string, number>();
+  const redZoneOff = new Map<string, number>();
+  const redZoneDef = new Map<string, number>();
+  const thirdDownOff = new Map<string, number>();
+  const thirdDownDef = new Map<string, number>();
+  const passRate = new Map<string, number>();
+  const stuffedOff = new Map<string, number>();
+  const stuffedDef = new Map<string, number>();
+  let processRows = 0;
 
   for (const row of slice) {
     passOff.set(row.teamId, row.passOff);
@@ -105,6 +146,22 @@ function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): T
     defense.set(row.teamId, row.defEpa);
     ranks.set(row.teamId, row.netEpa);
     meta.set(row.teamId, row);
+    if (row.successOff !== undefined) {
+      processRows += 1;
+      successOff.set(row.teamId, row.successOff);
+      successDef.set(row.teamId, row.successDef ?? 0);
+      explosiveOff.set(row.teamId, row.explosiveOff ?? 0);
+      explosiveDef.set(row.teamId, row.explosiveDef ?? 0);
+      havocOff.set(row.teamId, row.havocOff ?? 0);
+      havocDef.set(row.teamId, row.havocDef ?? 0);
+      redZoneOff.set(row.teamId, row.redZoneOff ?? 0);
+      redZoneDef.set(row.teamId, row.redZoneDef ?? 0);
+      thirdDownOff.set(row.teamId, row.thirdDownOff ?? 0);
+      thirdDownDef.set(row.teamId, row.thirdDownDef ?? 0);
+      passRate.set(row.teamId, row.passRateOff ?? 0);
+      stuffedOff.set(row.teamId, row.stuffedOff ?? 0);
+      stuffedDef.set(row.teamId, row.stuffedDef ?? 0);
+    }
   }
 
   const passOffS = scoresFromRaw(passOff);
@@ -114,6 +171,19 @@ function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): T
   const offS = scoresFromRaw(offense);
   const defS = scoresFromRaw(defense, true);
   const rankS = scoresFromRaw(ranks);
+  const successOffS = scoresFromRaw(successOff);
+  const successDefS = scoresFromRaw(successDef, true);
+  const explosiveOffS = scoresFromRaw(explosiveOff);
+  const explosiveDefS = scoresFromRaw(explosiveDef, true);
+  const protectionS = scoresFromRaw(havocOff, true);
+  const passRushS = scoresFromRaw(havocDef);
+  const redZoneOffS = scoresFromRaw(redZoneOff);
+  const redZoneDefS = scoresFromRaw(redZoneDef, true);
+  const thirdDownOffS = scoresFromRaw(thirdDownOff);
+  const thirdDownDefS = scoresFromRaw(thirdDownDef, true);
+  const passRateS = scoresFromRaw(passRate);
+  const stuffedOffS = scoresFromRaw(stuffedOff, true);
+  const stuffedDefS = scoresFromRaw(stuffedDef);
 
   return [...meta.values()].map((row) => ({
     teamId: `ncaaf:${row.teamId}`,
@@ -135,6 +205,22 @@ function rowsToFactors(slice: CfbWeekRow[], season: number, asOfWeek: number): T
     ranks: rankS.get(row.teamId) ?? 50,
     pace: row.pace,
     source: "sportsdataverse-cfb-team-summaries-weekly",
+    process:
+      processRows > 0
+        ? processCard({
+            successOff: successOffS.get(row.teamId) ?? 50,
+            successDef: successDefS.get(row.teamId) ?? 50,
+            explosiveOff: explosiveOffS.get(row.teamId) ?? 50,
+            explosiveDef: explosiveDefS.get(row.teamId) ?? 50,
+            protection: ((protectionS.get(row.teamId) ?? 50) + (stuffedOffS.get(row.teamId) ?? 50)) / 2,
+            passRush: ((passRushS.get(row.teamId) ?? 50) + (stuffedDefS.get(row.teamId) ?? 50)) / 2,
+            redZoneOff: redZoneOffS.get(row.teamId) ?? 50,
+            redZoneDef: redZoneDefS.get(row.teamId) ?? 50,
+            thirdDownOff: thirdDownOffS.get(row.teamId) ?? 50,
+            thirdDownDef: thirdDownDefS.get(row.teamId) ?? 50,
+            passRate: passRateS.get(row.teamId) ?? 50,
+          })
+        : undefined,
   }));
 }
 

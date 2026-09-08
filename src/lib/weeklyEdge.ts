@@ -1,5 +1,5 @@
 import { weatherTotalAdjustment } from "./adjustments";
-import { assertFiniteNumber } from "./odds";
+import { americanToImplied, assertFiniteNumber } from "./odds";
 import type {
   GameEdgeContext,
   InjuryListing,
@@ -363,6 +363,17 @@ export function consensusFromBooks(args: {
     args.espn?.total !== undefined && args.espn.openTotal !== undefined
       ? args.espn.total - args.espn.openTotal
       : undefined;
+  const espnMlHomeImpliedMove = impliedProbabilityDelta(args.espn?.homeMoneyline, args.espn?.openHomeMoneyline);
+  const publicHomeSpreadPct = median(
+    pool.flatMap((book) => (book.spreadHomePublic !== undefined ? [book.spreadHomePublic] : [])),
+  );
+  const publicHomeMoneyPct = median(
+    pool.flatMap((book) => (book.spreadHomeMoney !== undefined ? [book.spreadHomeMoney] : [])),
+  );
+  const ticketMoneyDivergence =
+    publicHomeSpreadPct !== undefined && publicHomeMoneyPct !== undefined
+      ? publicHomeSpreadPct - publicHomeMoneyPct
+      : undefined;
   return {
     books: args.books,
     consensusHomeSpread,
@@ -373,8 +384,23 @@ export function consensusFromBooks(args: {
     totalRange,
     espnSpreadMove,
     espnTotalMove,
+    espnMlHomeImpliedMove,
+    publicHomeSpreadPct,
+    publicHomeMoneyPct,
+    ticketMoneyDivergence,
     steamHint: (spreadRange ?? 0) >= 1.5 && pool.length >= 3,
   };
+}
+
+function impliedProbabilityDelta(current?: number, open?: number): number | undefined {
+  if (current === undefined || open === undefined) {
+    return undefined;
+  }
+  try {
+    return americanToImplied(current) - americanToImplied(open);
+  } catch {
+    return undefined;
+  }
 }
 
 const NEWS_RULES: Array<{ tag: NewsTag; pattern: RegExp }> = [

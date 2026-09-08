@@ -114,6 +114,12 @@ export interface MarketBookLine {
   homeMoneyline?: number;
   awayMoneyline?: number;
   updatedIso?: string;
+  spreadHomePublic?: number;
+  spreadAwayPublic?: number;
+  spreadHomeMoney?: number;
+  spreadAwayMoney?: number;
+  mlHomePublic?: number;
+  mlAwayPublic?: number;
 }
 
 export interface MarketConsensus {
@@ -126,6 +132,10 @@ export interface MarketConsensus {
   totalRange?: number;
   espnSpreadMove?: number;
   espnTotalMove?: number;
+  espnMlHomeImpliedMove?: number;
+  publicHomeSpreadPct?: number;
+  publicHomeMoneyPct?: number;
+  ticketMoneyDivergence?: number;
   steamHint: boolean;
 }
 
@@ -182,6 +192,10 @@ export interface TeamRating {
   last4Residual: number;
   homeResidual: number;
   awayResidual: number;
+  wins?: number;
+  pythagoreanWins?: number;
+  oneScoreWins?: number;
+  oneScoreGames?: number;
 }
 
 export interface MatchupAdjustments {

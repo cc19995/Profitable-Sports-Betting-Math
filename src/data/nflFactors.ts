@@ -4,6 +4,7 @@ import { cachedDownload } from "./httpCache";
 import { csvNumber, parseCsvLine } from "./csv";
 import { indexFactors, lookupFactors, type FactorStore } from "@/src/lib/rithmm/store";
 import { scoresFromRaw } from "@/src/lib/rithmm/normalize";
+import { processCard } from "@/src/lib/processMatchup";
 import type { TeamFactors } from "@/src/lib/rithmm/types";
 
 const BASE = "https://github.com/nflverse/nflverse-data/releases/download/stats_team";
@@ -22,6 +23,15 @@ type NflGameRow = {
   sacks: number;
   defSacks: number;
   defInt: number;
+  passing20?: number;
+  rushing20?: number;
+  passingFirstDowns?: number;
+  rushingFirstDowns?: number;
+  defQbHits?: number;
+  fumblesLost?: number;
+  fumblesTotal?: number;
+  defFumblesForced?: number;
+  fumbleRecoveryOpp?: number;
 };
 
 function priorWeight(season: number, asOfSeason: number): number {
@@ -79,6 +89,15 @@ async function loadSeasonRows(season: number): Promise<NflGameRow[]> {
       sacks: csvNumber(rec.sacks_suffered) ?? 0,
       defSacks: csvNumber(rec.def_sacks) ?? 0,
       defInt: csvNumber(rec.def_interceptions) ?? 0,
+      passing20: csvNumber(rec.passing_20) ?? 0,
+      rushing20: csvNumber(rec.rushing_20) ?? 0,
+      passingFirstDowns: csvNumber(rec.passing_first_downs) ?? 0,
+      rushingFirstDowns: csvNumber(rec.rushing_first_downs) ?? 0,
+      defQbHits: csvNumber(rec.def_qb_hits) ?? 0,
+      fumblesLost: csvNumber(rec.fumbles_lost_total) ?? 0,
+      fumblesTotal: csvNumber(rec.fumbles_total) ?? 0,
+      defFumblesForced: csvNumber(rec.def_fumbles_forced) ?? 0,
+      fumbleRecoveryOpp: csvNumber(rec.fumble_recovery_opp) ?? 0,
     });
   }
   return rows;
@@ -109,6 +128,16 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
     defRushEpa: number;
     defRushPlays: number;
     plays: number;
+    explosive: number;
+    explosiveAllowed: number;
+    firstDowns: number;
+    firstDownsAllowed: number;
+    defSacks: number;
+    defPassRushDen: number;
+    fumblesLost: number;
+    fumblesTotal: number;
+    defForced: number;
+    defRecovered: number;
   };
   const teams = new Map<string, Acc>();
   const ensure = (team: string): Acc => {
@@ -132,6 +161,16 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
       defRushEpa: 0,
       defRushPlays: 0,
       plays: 0,
+      explosive: 0,
+      explosiveAllowed: 0,
+      firstDowns: 0,
+      firstDownsAllowed: 0,
+      defSacks: 0,
+      defPassRushDen: 0,
+      fumblesLost: 0,
+      fumblesTotal: 0,
+      defForced: 0,
+      defRecovered: 0,
     };
     teams.set(team, created);
     return created;
@@ -167,6 +206,16 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
       acc.defRushEpa += them.rushingEpa * w;
       acc.defRushPlays += Math.max(them.carries, 1) * w;
       acc.plays += (us.attempts + us.carries) * w;
+      acc.explosive += ((us.passing20 ?? 0) + (us.rushing20 ?? 0)) * w;
+      acc.explosiveAllowed += ((them.passing20 ?? 0) + (them.rushing20 ?? 0)) * w;
+      acc.firstDowns += ((us.passingFirstDowns ?? 0) + (us.rushingFirstDowns ?? 0)) * w;
+      acc.firstDownsAllowed += ((them.passingFirstDowns ?? 0) + (them.rushingFirstDowns ?? 0)) * w;
+      acc.defSacks += (us.defSacks + 0.45 * (us.defQbHits ?? 0)) * w;
+      acc.defPassRushDen += Math.max(them.attempts + them.sacks, 1) * w;
+      acc.fumblesLost += (us.fumblesLost ?? 0) * w;
+      acc.fumblesTotal += (us.fumblesTotal ?? 0) * w;
+      acc.defForced += (us.defFumblesForced ?? 0) * w;
+      acc.defRecovered += (us.fumbleRecoveryOpp ?? 0) * w;
     }
   }
 
@@ -177,6 +226,14 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
   const offense = new Map<string, number>();
   const defense = new Map<string, number>();
   const pace = new Map<string, number>();
+  const successOff = new Map<string, number>();
+  const successDef = new Map<string, number>();
+  const explosiveOff = new Map<string, number>();
+  const explosiveDef = new Map<string, number>();
+  const protection = new Map<string, number>();
+  const passRush = new Map<string, number>();
+  const turnoverLuck = new Map<string, number>();
+  const passRate = new Map<string, number>();
 
   for (const acc of teams.values()) {
     const pass = acc.passPlays > 0 ? acc.passEpa / acc.passPlays : 0;
@@ -191,6 +248,16 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
     offense.set(acc.team, 0.65 * pass + 0.35 * rush);
     defense.set(acc.team, 0.65 * dPass + 0.35 * dRush);
     pace.set(acc.team, acc.games > 0 ? acc.plays / acc.games : 62);
+    successOff.set(acc.team, acc.plays > 0 ? acc.firstDowns / acc.plays : 0);
+    successDef.set(acc.team, acc.plays > 0 ? acc.firstDownsAllowed / acc.plays : 0);
+    explosiveOff.set(acc.team, acc.plays > 0 ? acc.explosive / acc.plays : 0);
+    explosiveDef.set(acc.team, acc.plays > 0 ? acc.explosiveAllowed / acc.plays : 0);
+    protection.set(acc.team, sackPenalty);
+    passRush.set(acc.team, acc.defPassRushDen > 0 ? acc.defSacks / acc.defPassRushDen : 0);
+    const recovery = acc.defForced > 0.5 ? acc.defRecovered / acc.defForced : 0.5;
+    const lost = acc.fumblesTotal > 0.5 ? acc.fumblesLost / acc.fumblesTotal : 0.5;
+    turnoverLuck.set(acc.team, recovery - lost);
+    passRate.set(acc.team, acc.plays > 0 ? acc.passPlays / acc.plays : 0.55);
   }
 
   const passOffS = scoresFromRaw(passOff);
@@ -202,6 +269,14 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
   const rankS = scoresFromRaw(
     new Map([...offense].map(([id, off]) => [id, off - (defense.get(id) ?? 0)])),
   );
+  const successOffS = scoresFromRaw(successOff);
+  const successDefS = scoresFromRaw(successDef, true);
+  const explosiveOffS = scoresFromRaw(explosiveOff);
+  const explosiveDefS = scoresFromRaw(explosiveDef, true);
+  const protectionS = scoresFromRaw(protection, true);
+  const passRushS = scoresFromRaw(passRush);
+  const luckS = scoresFromRaw(turnoverLuck);
+  const passRateS = scoresFromRaw(passRate);
 
   return [...teams.values()].map((acc) => ({
     teamId: `nfl:${acc.team}`,
@@ -223,6 +298,16 @@ export function buildNflFactorsAt(rows: NflGameRow[], season: number, week: numb
     ranks: rankS.get(acc.team) ?? 50,
     pace: pace.get(acc.team) ?? 62,
     source: "nflverse-stats-team-week",
+    process: processCard({
+      successOff: successOffS.get(acc.team) ?? 50,
+      successDef: successDefS.get(acc.team) ?? 50,
+      explosiveOff: explosiveOffS.get(acc.team) ?? 50,
+      explosiveDef: explosiveDefS.get(acc.team) ?? 50,
+      protection: protectionS.get(acc.team) ?? 50,
+      passRush: passRushS.get(acc.team) ?? 50,
+      turnoverLuck: luckS.get(acc.team) ?? 50,
+      passRate: passRateS.get(acc.team) ?? 50,
+    }),
   }));
 }
 

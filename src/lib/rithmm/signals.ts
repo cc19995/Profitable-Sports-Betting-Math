@@ -74,5 +74,24 @@ export function houseSignals(args: {
       kind: "caution",
     });
   }
+  const hp = args.home.process;
+  const ap = args.away.process;
+  if (hp && ap) {
+    const pressureGap = Math.abs(hp.passRush - ap.protection) + Math.abs(ap.passRush - hp.protection);
+    if (args.pick.betType === "spread" && pressureGap >= 36 && args.alignment >= 0.8) {
+      signals.push({
+        id: "pressure-fit",
+        label: "Pass-rush vs protection mismatch",
+        kind: "recommend",
+      });
+    }
+    if (hp.turnoverLuck >= 62 || ap.turnoverLuck >= 62) {
+      signals.push({
+        id: "fumble-luck",
+        label: "Fumble recovery rate is unsustainably high — faded, not a talent edge",
+        kind: "caution",
+      });
+    }
+  }
   return signals;
 }

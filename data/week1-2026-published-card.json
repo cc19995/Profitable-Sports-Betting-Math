@@ -1,0 +1,74 @@
+{
+  "source": "Historical live tickets published by the desk before the final profit gate, graded against ESPN final scores. Lines are the posted DraftKings numbers at snapshot time, not the close.",
+  "fridayCard": {
+    "snapshotAt": "2026-09-04T18:51:36Z",
+    "note": "Predates the no-moneyline profit gate. Includes WYO ML and WKU ML.",
+    "picks": [
+      { "matchup": "SJSU @ EMU", "pick": "Over 54.5", "result": "27-21", "total": 48, "grade": "L" },
+      { "matchup": "TOL @ MSU", "pick": "TOL +10", "result": "20-30", "marginHome": 10, "grade": "P" },
+      { "matchup": "UTEP @ OU", "pick": "Under 51.5", "result": "0-51", "total": 51, "grade": "W" },
+      { "matchup": "LIB @ JMU", "pick": "Over 50.5", "result": "13-20", "total": 33, "grade": "L" },
+      { "matchup": "OHIO @ NEB", "pick": "Over 46.5", "result": "21-49", "total": 70, "grade": "W" },
+      { "matchup": "UNT @ IU", "pick": "Over 56.5", "result": "16-52", "total": 68, "grade": "W" },
+      { "matchup": "BALL @ OSU", "pick": "Under 56.5", "result": "3-56", "total": 59, "grade": "L" },
+      { "matchup": "M-OH @ PITT", "pick": "Over 47.5", "result": "14-59", "total": 73, "grade": "W" },
+      { "matchup": "BAY @ AUB", "pick": "Under 59.5", "result": "16-17", "total": 33, "grade": "W" },
+      { "matchup": "BC @ CIN", "pick": "CIN -7.5", "result": "15-34", "marginHome": 19, "grade": "W" },
+      { "matchup": "BOIS @ ORE", "pick": "Over 51.5", "result": "27-34", "total": 61, "grade": "W" },
+      { "matchup": "MRSH @ PSU", "pick": "Over 52.5", "result": "0-45", "total": 45, "grade": "L" },
+      { "matchup": "TULN @ DUKE", "pick": "TULN +7.5", "result": "3-17", "marginHome": 14, "grade": "L" },
+      { "matchup": "OKST @ TLSA", "pick": "Under 59.5", "result": "10-24", "total": 34, "grade": "W" },
+      { "matchup": "NIU @ IOWA", "pick": "Under 44.5", "result": "0-40", "total": 40, "grade": "W" },
+      { "matchup": "WYO @ CSU", "pick": "WYO ML", "result": "13-35", "grade": "L" },
+      { "matchup": "FIU @ USF", "pick": "USF -14.5", "result": "9-19", "marginHome": 10, "grade": "L" },
+      { "matchup": "SHSU @ TROY", "pick": "Under 55.5", "result": "21-24", "total": 45, "grade": "W" },
+      { "matchup": "CLEM @ LSU", "pick": "Under 50.5", "result": "10-51", "total": 61, "grade": "L" },
+      { "matchup": "WMU @ MICH", "pick": "Under 49.5", "result": "12-13", "total": 25, "grade": "W" },
+      { "matchup": "FAU @ FLA", "pick": "Under 59.5", "result": "21-66", "total": 87, "grade": "L" },
+      { "matchup": "UNLV @ HAW", "pick": "Over 55.5", "result": "21-6", "total": 27, "grade": "L" },
+      { "matchup": "UCLA @ CAL", "pick": "CAL +2.5", "result": "45-24", "marginHome": -21, "grade": "L" },
+      { "matchup": "WKU @ NEV", "pick": "WKU ML", "result": "14-49", "grade": "L" }
+    ],
+    "record": "11-12-1"
+  },
+  "saturdayFeatured": {
+    "snapshotAt": "2026-09-05T21:55:05Z",
+    "picks": [
+      { "matchup": "WYO @ CSU", "pick": "Under 46.5", "odds": -110, "p": 0.682, "ev": 0.302, "result": "13-35", "total": 48, "grade": "L" },
+      { "matchup": "CLEM @ LSU", "pick": "Under 49.5", "odds": -110, "p": 0.681, "ev": 0.3, "result": "10-51", "total": 61, "grade": "L" },
+      { "matchup": "WKU @ NEV", "pick": "WKU ML", "odds": -112, "p": 0.622, "ev": 0.177, "result": "14-49", "grade": "L" },
+      { "matchup": "WMU @ MICH", "pick": "Under 49.5", "odds": -112, "p": 0.643, "ev": 0.218, "result": "12-13", "total": 25, "grade": "W" },
+      { "matchup": "UNLV @ HAW", "pick": "Over 55.5", "odds": -112, "p": 0.664, "ev": 0.257, "result": "21-6", "total": 27, "grade": "L" },
+      { "matchup": "UCLA @ CAL", "pick": "CAL +2.5", "odds": -102, "p": 0.64, "ev": 0.267, "result": "45-24", "grade": "L" }
+    ],
+    "record": "1-5",
+    "unitsApprox": -4.11,
+    "alsoSurfaced": [
+      { "matchup": "FIU @ USF", "pick": "USF -14.5", "grade": "L", "note": "Not featured; USF won by 10." },
+      { "matchup": "FAU @ FLA", "pick": "Under 59.5", "grade": "L" },
+      { "matchup": "ARST @ MEM", "pick": "MEM -10.5", "grade": "W", "note": "MEM won by 18." }
+    ]
+  },
+  "saturdayParlays": {
+    "preferred": {
+      "legs": ["CLEM/LSU Under 49.5", "WKU ML", "CAL +2.5"],
+      "quotedAmerican": "+616",
+      "grade": "0-3"
+    },
+    "lead": {
+      "legs": ["WYO/CSU Under 46.5", "WKU ML", "CAL +2.5"],
+      "quotedAmerican": "+616",
+      "grade": "0-3"
+    },
+    "lateNight": {
+      "legs": ["WKU ML", "UNLV/HAW Over 55.5", "CAL +2.5"],
+      "quotedAmerican": "+610",
+      "grade": "0-3"
+    },
+    "fourLegSecondary": {
+      "legs": ["CLEM/LSU Under 49.5", "WKU ML", "UNLV/HAW Over 55.5", "CAL +2.5"],
+      "quotedAmerican": "+1255",
+      "grade": "0-4"
+    }
+  }
+}

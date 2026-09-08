@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "refresh": "tsx src/cli.ts refresh",
-    "model": "tsx src/cli.ts"
+    "model": "tsx src/cli.ts",
+    "grade:week1": "tsx scripts/grade-week1.ts"
   },
   "engines": {
     "node": ">=20"

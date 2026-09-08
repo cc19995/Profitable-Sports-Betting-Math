@@ -5,6 +5,8 @@ import { expectedScores } from "@/src/lib/ratings";
 import {
   buildGameEdgeContext,
   consensusFromBooks,
+  equivalentAbbr,
+  newsMatchesTeam,
   newsQbFlag,
   scoreTeamInjuries,
   tagNewsText,
@@ -188,6 +190,18 @@ describe("news and game context", () => {
     expect(newsQbFlag(items, team("ATL", "Atlanta Falcons"), true)).toBe(false);
   });
 
+  it("does not treat SEA as a substring of season", () => {
+    const item: NewsItem = {
+      headline: "How to bet the 2026 NFL season",
+      teamAbbrs: [],
+      tags: ["other"],
+    };
+    expect(newsMatchesTeam(item, team("SEA", "Seattle Seahawks"))).toBe(false);
+    expect(newsMatchesTeam({ ...item, headline: "Seahawks list starters" }, team("SEA", "Seattle Seahawks"))).toBe(
+      true,
+    );
+  });
+
   it("moves the home projection down when the home QB is out", () => {
     const game: UpcomingGame = {
       id: "nfl:1",
@@ -235,7 +249,13 @@ describe("news and game context", () => {
   });
 });
 
-describe("espn hosts", () => {
+describe("aliases and espn hosts", () => {
+  it("equates ESPN LAR/JAX/WSH with Action Network LA/JAC/WAS", () => {
+    expect(equivalentAbbr("LAR", "LA")).toBe(true);
+    expect(equivalentAbbr("JAX", "JAC")).toBe(true);
+    expect(equivalentAbbr("WSH", "WAS")).toBe(true);
+    expect(equivalentAbbr("SEA", "SEATTLE")).toBe(false);
+  });
   it("prefers the site.web.api host that is reachable from this environment", () => {
     expect(espnSitePath("nfl", "injuries")).toContain("site.web.api.espn.com");
     expect(espnSitePath("ncaaf", "news?limit=50")).toContain("college-football/news");

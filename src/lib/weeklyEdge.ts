@@ -185,11 +185,11 @@ export function scoreTeamInjuries(args: {
       side: weight === 0 ? "ignored" : listingSide(group),
     };
     listings.push(listing);
-    if (weight === 0) {
-      continue;
-    }
     if (group === "qb") {
       qbRows.push({ listing, status, weight, full });
+      continue;
+    }
+    if (weight === 0) {
       continue;
     }
     if (group === "ol" && weight >= 1) {
@@ -393,13 +393,52 @@ export function tagNewsText(text: string): NewsTag[] {
   return tags.length > 0 ? tags : ["other"];
 }
 
-export function newsMatchesTeam(item: NewsItem, team: TeamRef): boolean {
-  const abbrs = new Set(item.teamAbbrs.map((value) => value.toUpperCase()));
-  if (abbrs.has(team.abbreviation.toUpperCase())) {
+const ABBR_ALIASES: Record<string, string[]> = {
+  LAR: ["LA"],
+  LA: ["LAR"],
+  JAX: ["JAC"],
+  JAC: ["JAX"],
+  WSH: ["WAS"],
+  WAS: ["WSH"],
+  NCSU: ["NCST"],
+  NCST: ["NCSU"],
+  RUTG: ["RUT"],
+  RUT: ["RUTG"],
+};
+
+export function equivalentAbbr(left: string | undefined, right: string | undefined): boolean {
+  if (!left || !right) {
+    return false;
+  }
+  const a = left.toUpperCase();
+  const b = right.toUpperCase();
+  if (a === b) {
     return true;
   }
-  const blob = `${item.headline} ${item.teamAbbrs.join(" ")}`.toLowerCase();
-  return blob.includes(team.name.toLowerCase()) || blob.includes(team.abbreviation.toLowerCase());
+  return (ABBR_ALIASES[a] ?? []).includes(b) || (ABBR_ALIASES[b] ?? []).includes(a);
+}
+
+function hasWord(haystack: string, needle: string): boolean {
+  if (needle.trim().length < 2) {
+    return false;
+  }
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^A-Za-z0-9])${escaped}([^A-Za-z0-9]|$)`, "i").test(haystack);
+}
+
+export function newsMatchesTeam(item: NewsItem, team: TeamRef): boolean {
+  if (item.teamAbbrs.some((abbr) => equivalentAbbr(abbr, team.abbreviation))) {
+    return true;
+  }
+  const blob = item.headline;
+  if (team.name.length >= 5 && blob.toLowerCase().includes(team.name.toLowerCase())) {
+    return true;
+  }
+  const nick = team.name.split(/\s+/).at(-1) ?? "";
+  if (nick.length >= 5 && hasWord(blob, nick)) {
+    return true;
+  }
+  return hasWord(blob, team.abbreviation);
 }
 
 export function newsQbFlag(items: NewsItem[], team: TeamRef, alreadyHasQb: boolean): boolean {

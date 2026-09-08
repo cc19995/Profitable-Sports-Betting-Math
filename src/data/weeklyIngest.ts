@@ -2,6 +2,7 @@ import { cachedJson } from "./httpCache";
 import { cachedEspnJson, espnSitePath } from "./espn";
 import {
   buildGameEdgeContext,
+  equivalentAbbr,
   tagNewsText,
   weatherFromForecast,
   type ParsedInjury,
@@ -291,6 +292,8 @@ function actionTeam(game: ActionGame, teamId: number | undefined): ActionTeam | 
 export function parseActionGame(game: ActionGame): {
   homeAbbr?: string;
   awayAbbr?: string;
+  homeName?: string;
+  awayName?: string;
   kickoffIso?: string;
   books: MarketBookLine[];
 } {
@@ -317,13 +320,22 @@ export function parseActionGame(game: ActionGame): {
   return {
     homeAbbr: home?.abbr,
     awayAbbr: away?.abbr,
+    homeName: home?.full_name,
+    awayName: away?.full_name,
     kickoffIso: game.start_time,
     books,
   };
 }
 
 export async function fetchActionBooks(league: League): Promise<
-  Array<{ homeAbbr?: string; awayAbbr?: string; kickoffIso?: string; books: MarketBookLine[] }>
+  Array<{
+    homeAbbr?: string;
+    awayAbbr?: string;
+    homeName?: string;
+    awayName?: string;
+    kickoffIso?: string;
+    books: MarketBookLine[];
+  }>
 > {
   const path = league === "nfl" ? "nfl" : "ncaaf";
   const payload = await cachedJson<ActionScoreboard>({
@@ -342,18 +354,40 @@ function sameKickoffDay(left?: string, right?: string): boolean {
   return left.slice(0, 10) === right.slice(0, 10);
 }
 
+function namesAlign(anName: string | undefined, team: TeamRef): boolean {
+  if (!anName) {
+    return false;
+  }
+  const action = anName.toLowerCase();
+  const espn = team.name.toLowerCase();
+  if (action === espn) {
+    return true;
+  }
+  if (espn.length >= 8 && action.includes(espn)) {
+    return true;
+  }
+  const nick = espn.split(/\s+/).at(-1) ?? "";
+  return nick.length >= 5 && action.includes(nick);
+}
+
 export function matchActionBooks(
-  rows: Array<{ homeAbbr?: string; awayAbbr?: string; kickoffIso?: string; books: MarketBookLine[] }>,
+  rows: Array<{
+    homeAbbr?: string;
+    awayAbbr?: string;
+    homeName?: string;
+    awayName?: string;
+    kickoffIso?: string;
+    books: MarketBookLine[];
+  }>,
   game: UpcomingGame,
 ): MarketBookLine[] {
-  const home = game.home.abbreviation.toUpperCase();
-  const away = game.away.abbreviation.toUpperCase();
-  const hit = rows.find(
-    (row) =>
-      row.homeAbbr?.toUpperCase() === home &&
-      row.awayAbbr?.toUpperCase() === away &&
-      sameKickoffDay(row.kickoffIso, game.kickoffIso),
-  );
+  const hit = rows.find((row) => {
+    const abbrHit =
+      equivalentAbbr(row.homeAbbr, game.home.abbreviation) &&
+      equivalentAbbr(row.awayAbbr, game.away.abbreviation);
+    const nameHit = namesAlign(row.homeName, game.home) && namesAlign(row.awayName, game.away);
+    return (abbrHit || nameHit) && sameKickoffDay(row.kickoffIso, game.kickoffIso);
+  });
   return hit?.books ?? [];
 }
 
@@ -575,38 +609,58 @@ export async function loadWeeklyFeeds(leagues: League[]): Promise<WeeklyFeeds> {
   return { injuries, news, books };
 }
 
+async function mapLimited<T, R>(items: T[], concurrency: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = [];
+  for (let i = 0; i < items.length; i += concurrency) {
+    const slice = items.slice(i, i + concurrency);
+    results.push(...(await Promise.all(slice.map(fn))));
+  }
+  return results;
+}
+
 export async function attachWeeklyEdge(games: UpcomingGame[]): Promise<UpcomingGame[]> {
   if (games.length === 0) {
     return games;
   }
   const feeds = await loadWeeklyFeeds([...new Set(games.map((game) => game.league))]);
-  const weatherCache = new Map<string, Promise<WeatherForecast>>();
-  const attached = await Promise.all(
-    games.map(async (game) => {
-      const key = `${game.indoor ? "in" : "out"}:${game.venueCity ?? ""}:${game.venueState ?? ""}:${game.kickoffIso.slice(0, 13)}`;
-      let weatherPromise = weatherCache.get(key);
-      if (!weatherPromise) {
-        weatherPromise = weatherForGame(game);
-        weatherCache.set(key, weatherPromise);
-      }
-      const weather = await weatherPromise;
-      const edge = buildGameEdgeContext({
-        game,
-        homeInjuries: lookupInjuries(feeds.injuries[game.league], game.home),
-        awayInjuries: lookupInjuries(feeds.injuries[game.league], game.away),
-        weather,
-        books: matchActionBooks(feeds.books[game.league], game),
-        news: feeds.news[game.league],
-      });
-      return {
-        ...game,
-        temperatureF: weather.temperatureF ?? game.temperatureF,
-        windMph: weather.windMph ?? game.windMph,
-        edge,
-      };
-    }),
-  );
-  return attached;
+  const weatherKey = (game: UpcomingGame): string =>
+    `${game.indoor ? "in" : "out"}:${game.venueCity ?? ""}:${game.venueState ?? ""}:${game.kickoffIso.slice(0, 13)}`;
+  const uniqueWeather = new Map<string, UpcomingGame>();
+  for (const game of games) {
+    const key = weatherKey(game);
+    if (!uniqueWeather.has(key)) {
+      uniqueWeather.set(key, game);
+    }
+  }
+  const weatherByKey = new Map<string, WeatherForecast>();
+  await mapLimited([...uniqueWeather.entries()], 4, async ([key, sample]) => {
+    weatherByKey.set(key, await weatherForGame(sample));
+  });
+  return games.map((game) => {
+    const weather = weatherByKey.get(weatherKey(game)) ?? weatherFromForecast({
+      indoor: game.indoor,
+      roof: game.roof,
+      city: game.venueCity,
+      state: game.venueState,
+      windMph: game.windMph,
+      temperatureF: game.temperatureF,
+      source: "none",
+    });
+    const edge = buildGameEdgeContext({
+      game,
+      homeInjuries: lookupInjuries(feeds.injuries[game.league], game.home),
+      awayInjuries: lookupInjuries(feeds.injuries[game.league], game.away),
+      weather,
+      books: matchActionBooks(feeds.books[game.league], game),
+      news: feeds.news[game.league],
+    });
+    return {
+      ...game,
+      temperatureF: weather.temperatureF ?? game.temperatureF,
+      windMph: weather.windMph ?? game.windMph,
+      edge,
+    };
+  });
 }
 
 export function compactGameEdge(game: UpcomingGame): Record<string, unknown> {

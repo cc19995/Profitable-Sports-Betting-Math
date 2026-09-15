@@ -1,0 +1,87 @@
+player,pos,team,opp,week1_salary,week2_salary,salary_source,proj,notes
+Caleb Williams,QB,CHI,MIN,6300,6900,w1_adjusted,24.8,Rushing floor; home favorite in 49.5-total NFC North game
+Lamar Jackson,QB,BAL,NO,6800,7000,w1_adjusted,22.2,BAL implied 28.0; Henry vultures some TDs
+Dak Prescott,QB,DAL,WAS,,6100,estimated_classic,21.4,Slate-high 50.5 total; quiet SNF Week 1
+Brock Purdy,QB,SF,MIA,,5900,estimated_classic,20.6,SF implied 29.5 vs Miami
+Jayden Daniels,QB,WAS,DAL,6500,6400,w1_adjusted,20.6,WAS implied 23.5 in highest remaining total
+Jalen Hurts,QB,PHI,TEN,6600,6700,w1_adjusted,20.0,Rushing floor; PHI -7 in a 40.5 total
+Joe Burrow,QB,CIN,HOU,6900,6800,w1_adjusted,19.8,CIN implied 21.75 at Houston
+Jordan Love,QB,GB,NYJ,5700,5900,w1_adjusted,18.9,387 pass yards in Week 1; GB implied 24.5
+Justin Herbert,QB,LAC,LV,6100,5900,w1_adjusted,18.4,Home favorite vs Las Vegas
+Bryce Young,QB,CAR,ATL,5200,5600,w1_adjusted,18.1,361/3TD Week 1; CAR slight favorite
+C.J. Stroud,QB,HOU,CIN,5200,5400,w1_adjusted,17.9,HOU implied 24.75 at home
+Carson Wentz,QB,MIN,CHI,4000,4900,w1_adjusted,17.2,Likely starter with Murray in concussion protocol
+Trevor Lawrence,QB,JAX,DEN,5800,6100,w1_adjusted,16.6,4 TDs vs CLE; tougher road spot at Denver
+Baker Mayfield,QB,TB,CLE,5900,5600,w1_adjusted,16.1,Three fumbles Week 1; TB -8.5 vs CLE
+Kirk Cousins,QB,LV,LAC,5000,5200,w1_adjusted,15.0,Three TDs vs MIA; tougher LAC matchup
+Tyler Shough,QB,NO,BAL,5600,5800,w1_adjusted,16.2,410 yards Week 1; BAL defense is a downgrade
+Drake Maye,QB,NE,PIT,6000,5600,w1_adjusted,14.4,3 INTs; A.J. Brown on IR
+Bo Nix,QB,DEN,JAX,,5400,estimated_classic,14.2,131 yards 3 fumbles in 31-10 MNF loss
+Geno Smith,QB,NYJ,GB,4600,4800,w1_adjusted,14.0,Efficient Week 1; GB is a step up
+Aaron Rodgers,QB,PIT,NE,5300,5300,w1_adjusted,14.6,Road dog at New England
+Jacoby Brissett,QB,ARI,SEA,5100,5200,w1_adjusted,14.8,Solid vs LAC; SEA is harder
+Derrick Henry,RB,BAL,NO,6700,7400,w1_adjusted,22.6,144/3TD; BAL implied 28 vs Saints
+Bijan Robinson,RB,ATL,CAR,7700,7800,w1_adjusted,21.6,173 scrimmage yards plus TD on 31 touches
+Christian McCaffrey,RB,SF,MIA,,7600,estimated_classic,21.2,SF implied 29.5; blowout risk but elite volume
+Ashton Jeanty,RB,LV,LAC,6600,7100,w1_adjusted,19.0,29 touches 147 yards 2 TDs
+D'Andre Swift,RB,CHI,MIN,6100,6600,w1_adjusted,17.2,124/3TD; split with Monangai
+Saquon Barkley,RB,PHI,TEN,6900,6800,w1_adjusted,17.0,PHI -7 clock-killing script
+David Montgomery,RB,HOU,CIN,6000,6400,w1_adjusted,16.4,Three TDs in Week 1; CIN at home
+Breece Hall,RB,NYJ,GB,6200,6500,w1_adjusted,15.8,22/102/1; GB is a tougher front
+Chase Brown,RB,CIN,HOU,7100,6800,w1_adjusted,15.0,Muted Week 1; still the Bengals lead back
+Bucky Irving,RB,TB,CLE,5700,5800,w1_adjusted,14.6,TB -8.5 vs CLE
+Chuba Hubbard,RB,CAR,ATL,5500,5800,w1_adjusted,14.4,Rush plus receiving TDs in shootout
+Javonte Williams,RB,DAL,WAS,,5500,estimated_classic,14.2,DAL implied 27 in 50.5 total
+Omarion Hampton,RB,LAC,LV,6800,6300,w1_adjusted,14.0,Quiet vs ARI; home vs LV rebound
+De'Von Achane,RB,MIA,SF,7000,6500,w1_adjusted,13.6,Difficult road spot at SF
+Jaylen Warren,RB,PIT,NE,5400,5400,w1_adjusted,13.4,Outplayed Dowdle in Week 1
+Rhamondre Stevenson,RB,NE,PIT,5700,5700,w1_adjusted,13.6,22 touches in Week 1; Henderson inactive then
+Jeremiyah Love,RB,ARI,SEA,6400,6400,w1_adjusted,13.0,Debut score; SEA run D is a downgrade
+Kyle Monangai,RB,CHI,MIN,5100,5300,w1_adjusted,12.6,10/100/1 in limited work
+Travis Etienne Jr.,RB,NO,BAL,5900,5700,w1_adjusted,12.8,Road at Baltimore
+Jadarian Price,RB,SEA,ARI,5100,5200,w1_adjusted,12.4,Darnold out; more run script possible
+Tony Pollard,RB,TEN,PHI,5600,5300,w1_adjusted,11.2,PHI -7; negative game script risk
+Justin Jefferson,WR,MIN,CHI,7300,7600,w1_adjusted,21.4,8/92/2; trailing script vs Chicago
+CeeDee Lamb,WR,DAL,WAS,,7200,estimated_classic,19.6,50.5-total home game
+Jaxon Smith-Njigba,WR,SEA,ARI,7600,7800,w1_adjusted,18.0,122 yards plus TD; SEA implied 23
+Ja'Marr Chase,WR,CIN,HOU,7800,7400,w1_adjusted,17.6,2/12 dud; priced down for bounce-back
+Chris Olave,WR,NO,BAL,6700,7200,w1_adjusted,16.0,10/182/13 targets; BAL D is a tax
+Nico Collins,WR,HOU,CIN,7000,7000,w1_adjusted,15.8,HOU implied 24.75 at home
+Christian Watson,WR,GB,NYJ,5900,6300,w1_adjusted,15.6,6/147/2; GB pass-heavy after Lloyd dud
+Jalen Coker,WR,CAR,ATL,4600,5200,w1_adjusted,14.8,8/138/2 on 9 targets
+Terry McLaurin,WR,WAS,DAL,5700,5600,w1_adjusted,14.8,WAS implied 23.5 in 50.5 total
+Tee Higgins,WR,CIN,HOU,6300,6200,w1_adjusted,14.4,Burrow's other alpha
+Mike Evans,WR,SF,MIA,,5900,estimated_classic,14.2,6/7 targets and a TD in SF debut
+George Pickens,WR,DAL,WAS,,6200,estimated_classic,14.0,Quiet SNF; 50.5 total rebound
+Drake London,WR,ATL,CAR,6500,6200,w1_adjusted,13.8,Muted with Rush; Penix return would help
+Tetairoa McMillan,WR,CAR,ATL,6100,6100,w1_adjusted,13.6,CAR slight favorite vs ATL
+Garrett Wilson,WR,NYJ,GB,5800,5800,w1_adjusted,13.2,Geno was efficient; GB is harder
+Brian Thomas Jr.,WR,JAX,DEN,5500,5500,w1_adjusted,13.0,Road at Denver
+Emeka Egbuka,WR,TB,CLE,6200,6000,w1_adjusted,12.8,TB -8.5 but Mayfield messy
+Luther Burden III,WR,CHI,MIN,5500,5500,w1_adjusted,12.6,CHI 27.5 implied; Williams spread the ball
+Jordan Addison,WR,MIN,CHI,5800,5800,w1_adjusted,12.4,Secondary target if Wentz starts
+Rome Odunze,WR,CHI,MIN,5400,5300,w1_adjusted,12.0,Quiet in 59-point game
+DeVonta Smith,WR,PHI,TEN,6600,6200,w1_adjusted,12.0,14 Hurts completions Week 1; low total
+DK Metcalf,WR,PIT,NE,5400,5300,w1_adjusted,11.6,Road at NE
+Parker Washington,WR,JAX,DEN,5600,5600,w1_adjusted,11.8,5/83/1 vs CLE
+Jaylen Waddle,WR,DEN,JAX,,5800,estimated_classic,11.4,Broncos managed 176 yards on MNF
+Dontayvion Wicks,WR,PHI,TEN,4100,4600,w1_adjusted,11.2,73-yard TD in Eagles debut
+Trey McBride,TE,ARI,SEA,6800,7000,w1_adjusted,15.6,9/95/1 on 13 targets
+Brock Bowers,TE,LV,LAC,6900,6900,w1_adjusted,14.0,Elite TE; tougher LAC matchup
+Dallas Goedert,TE,PHI,TEN,4100,4700,w1_adjusted,12.2,4/77/2; PHI -7
+Mark Andrews,TE,BAL,NO,3900,4000,w1_adjusted,11.4,Flowers hamstring; cheap BAL pass-catcher
+Tucker Kraft,TE,GB,NYJ,4500,4600,w1_adjusted,10.6,GB pass volume
+T.J. Hockenson,TE,MIN,CHI,3300,3600,w1_adjusted,10.4,TD with Wentz; cheap MIN pass volume
+Jake Ferguson,TE,DAL,WAS,,4300,estimated_classic,10.2,DAL 27 implied
+Evan Engram,TE,DEN,JAX,,3900,estimated_classic,9.2,Only DEN TD on MNF; offense stalled
+Juwan Johnson,TE,NO,BAL,3700,3800,w1_adjusted,8.8,Shough volume; BAL D
+San Francisco,DST,SF,MIA,,3400,estimated_classic,9.4,SF -12.5 vs 17-implied Miami
+Baltimore,DST,BAL,NO,3000,3300,w1_adjusted,8.6,BAL -8.5 vs Saints
+Tampa Bay,DST,TB,CLE,2600,2900,w1_adjusted,8.2,TB -8.5 vs 16-implied CLE
+Philadelphia,DST,PHI,TEN,3200,3100,w1_adjusted,7.8,PHI -7 vs 16.75-implied TEN
+Los Angeles Chargers,DST,LAC,LV,3500,3200,w1_adjusted,7.2,LAC -7 at home vs LV
+New England,DST,NE,PIT,2800,3000,w1_adjusted,6.8,NE -5.5 at home
+Chicago,DST,CHI,MIN,2800,2700,w1_adjusted,5.8,49.5 total; not a smash DST spot
+Dallas,DST,DAL,WAS,,2500,estimated_classic,5.4,50.5 total; avoid in cash
+Houston,DST,HOU,CIN,2900,2800,w1_adjusted,6.0,Home favorite but 46.5 total
+Green Bay,DST,GB,NYJ,3000,2900,w1_adjusted,6.4,GB -4.5 vs Jets

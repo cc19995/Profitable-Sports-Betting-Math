@@ -1,0 +1,43 @@
+Week 2 2026 DraftKings Classic — $55,000 recommended cash / +EV lineup
+Generated 2026-09-15 from Week 1 Classic salaries (repriced) + Week 2 Vegas totals.
+
+IMPORTANT
+- Official DraftKings Classic salary cap is $50,000. This roster uses the requested $55,000 budget.
+- Week 2 salaries were not fully posted at generation time. Players marked estimated_classic (CMC, Lamb, Prescott, Purdy, SF skill players, Dallas skill players, Denver) use Classic-scale estimates, not Showdown 1.5x prices.
+- Sunday main slate only. Excludes TNF (DET-BUF), SNF (IND-KC), and MNF (NYG-LAR).
+
+$55,000 LINEUP (spent $55,000 exactly)
+Slot  Player                 Team  Opp   Salary   Proj   Edge vs 2.5x
+QB    Caleb Williams         CHI   MIN   $6,900   24.8   +7.6
+RB    Derrick Henry          BAL   NO    $7,400   22.6   +4.1
+RB    Christian McCaffrey    SF    MIA   $7,600   21.2   +2.2
+WR    Justin Jefferson       MIN   CHI   $7,600   21.4   +2.4
+WR    CeeDee Lamb            DAL   WAS   $7,200   19.6   +1.6
+WR    Jalen Coker            CAR   ATL   $5,200   14.8   +1.8
+TE    T.J. Hockenson         MIN   CHI   $3,600   10.4   +1.4
+FLEX  D'Andre Swift          CHI   MIN   $6,600   17.2   +0.7
+DST   Tampa Bay              TB    CLE   $2,900    8.2   +0.9
+      TOTAL                              $55,000  160.2  9/9 +EV vs salary
+
+Construction: CHI-MIN game stack (Williams + Swift, Jefferson + Hockenson bring-back)
+plus three independent leverage pieces (Henry vs NO, CMC vs MIA, Lamb in the 50.5-total DAL-WAS game)
+plus a smash DST (TB -8.5 vs 16-implied CLE).
+
+WHY THIS IS THE CASH / "MOST LIKELY PROFITABLE" BUILD
+- Objective is maximum mean DK points, not tournament uniqueness. That is the highest hit-rate path in 50/50s and double-ups.
+- Every rostered player projects above the 2.5 DK points per $1,000 salary baseline that cash games price to.
+- Williams has a rushing floor; Henry had 24 carries; Jefferson is the forced target if Minnesota trails in Chicago.
+- CMC and Lamb were off the Week 1 Sunday main slate, so their Week 2 Classic tags are the least certain numbers on the board.
+
+CONSERVATIVE COKER SWAP (lower overfitting)
+If you do not want to chase Week 1's 8/138/2: replace Coker ($5,200) with Terry McLaurin ($5,600) and drop Hockenson to leftover or swap DST. McLaurin is in the slate's highest remaining total (WAS-DAL 50.5).
+
+$50,000 OFFICIAL-CAP LINEUP (spent $49,800)
+QB Williams $6,900 / RB Henry $7,400 / RB Swift $6,600
+WR Jefferson $7,600 / WR Coker $5,200 / WR McLaurin $5,600
+TE Andrews $4,000 / FLEX Hockenson $3,600 / DST TB $2,900
+Projected 145.6 DK points.
+
+OVERFITTING
+See dfs/optimize_lineup.py header and the pull request body for the full assessment.
+Hold for official Week 2 salaries plus Thursday practice (Murray concussion, Flowers hamstring, McConkey chest, Penix status) before locking real-money lineups.

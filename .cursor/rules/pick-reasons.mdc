@@ -1,0 +1,26 @@
+---
+description: When giving a betting pick, attach a 3-row reason table in this exact shape.
+alwaysApply: true
+---
+
+# Pick reason table
+
+Whenever you recommend a bet (side, total, or parlay leg), put the pick header, then this table. One table per pick. No prose list instead of the table.
+
+```
+**Away @ Home Play (odds)** — kick if relevant
+
+| # | Reason |
+| --- | --- |
+| 1 | Model **X vs posted Y** (gap ±Z). P a vs S b. Alignment c. |
+| 2 | Off/def matchup with the actual unit ratings (off vs opp def). Scoring or stop units, not vibes. |
+| 3 | Market move and/or why this number instead of the other side (spread vs total, opened vs current). |
+```
+
+Row 1 is always model vs the posted number, P/S, alignment.
+Row 2 is always the on-field rating mismatch that produces that projection.
+Row 3 is always the market structure (open/current, which side failed alignment, key number).
+
+Do not use head-coach / identity / "explosion" as one of the three rows unless that *is* the off/def or market fact. Continuity is already inside the nets.
+
+Parlays: each leg gets this table, or a single table with one row-group per leg. Do not invent new parlay-only reasons.

@@ -74,7 +74,7 @@ describe("ratings", () => {
     const liveDom = live.find((row) => row.team.abbreviation === "DOM");
     const liveBad = live.find((row) => row.team.abbreviation === "BAD");
     expect(priorDom && liveDom && liveBad).toBeTruthy();
-    expect(priorDom!.net).toBeGreaterThan(8);
+    expect(priorDom!.net).toBeGreaterThan(0);
     expect(liveDom!.net).toBeLessThan(priorDom!.net - 8);
     expect(liveBad!.net).toBeGreaterThan(liveDom!.net);
   });

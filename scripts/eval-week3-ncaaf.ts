@@ -255,7 +255,7 @@ async function main(): Promise<void> {
     }
     const p = card.projection;
     console.log(
-      `${card.matchup}  model ${p.awayScore.toFixed(1)}-${p.homeScore.toFixed(1)} (m ${p.margin.toFixed(1)} t ${p.total.toFixed(1)})  mkt ${card.market?.details ?? card.market?.homeSpread}/${card.market?.total}  gapS ${card.spreadGap?.toFixed?.(1)} gapT ${card.totalGap?.toFixed?.(1)}`,
+      `${card.matchup}  model ${p.awayScore.toFixed(1)}-${p.homeScore.toFixed(1)} (m ${p.margin.toFixed(1)} t ${p.total.toFixed(1)})  mkt ${card.market?.homeSpread}/${card.market?.total}  gapS ${card.spreadGap?.toFixed(1)} gapT ${card.totalGap?.toFixed(1)}`,
     );
   }
 }

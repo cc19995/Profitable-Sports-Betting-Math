@@ -97,6 +97,39 @@ describe("operator availability file", () => {
     expect(items[0]?.player).toBe("Starter WR");
   });
 
+  it("matches operator kickoffDateKey on the Eastern calendar day", async () => {
+    const fridayNight: UpcomingGame = {
+      ...game(),
+      id: "ncaaf:401856811",
+      kickoffIso: "2026-09-19T00:00:00Z",
+      home: { id: "ncaaf:2641", abbreviation: "TTU", name: "Texas Tech" },
+      away: { id: "ncaaf:248", abbreviation: "HOU", name: "Houston" },
+    };
+    const byGame = await loadNcaafAvailabilityItems([fridayNight], {
+      espnPayload: { injuries: [] },
+      operatorReports: parseOperatorAvailabilityFile({
+        reports: [
+          {
+            homeAbbreviation: "TTU",
+            awayAbbreviation: "HOU",
+            kickoffDateKey: "2026-09-18",
+            items: [
+              {
+                player: "Muizz Tounkara",
+                teamAbbreviation: "HOU",
+                positionGroup: "wr",
+                status: "out",
+                snapsLast2: 0,
+                sources: ["conference-report"],
+              },
+            ],
+          },
+        ],
+      }),
+    });
+    expect(byGame.get("ncaaf:401856811")?.map((item) => item.player)).toEqual(["Muizz Tounkara"]);
+  });
+
   it("rejects a side that does not match the team", () => {
     const reports = parseOperatorAvailabilityFile({
       reports: [

@@ -66,15 +66,23 @@ function leaguePath(league: League): string {
 }
 
 export async function fetchEspnJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`ESPN request failed ${response.status} for ${url}`);
+  const urls = [url];
+  if (url.includes("site.api.espn.com")) {
+    urls.push(url.replace("site.api.espn.com", "site.web.api.espn.com"));
   }
-  return (await response.json()) as T;
+  let lastStatus = 0;
+  for (const candidate of urls) {
+    const response = await fetch(candidate, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    lastStatus = response.status;
+    if (response.ok) {
+      return (await response.json()) as T;
+    }
+  }
+  throw new Error(`ESPN request failed ${lastStatus} for ${url}`);
 }
 
 function parseAmerican(raw: string | undefined): number | undefined {

@@ -8,6 +8,7 @@ import {
   type AvailabilityStatus,
 } from "@/src/lib/availability";
 import type { UpcomingGame } from "@/src/lib/types";
+import { kickoffDateKey } from "@/src/lib/format";
 import { fetchEspnJson } from "./espn";
 
 const OPERATOR_FILE = path.join(process.cwd(), "data", "availability.json");
@@ -229,10 +230,6 @@ export function parseOperatorAvailabilityFile(payload: unknown): OperatorGameRep
   });
 }
 
-function kickoffDate(iso: string): string {
-  return iso.slice(0, 10);
-}
-
 function operatorReportMatches(report: OperatorGameReport, game: UpcomingGame): boolean {
   if (report.gameId && report.gameId === game.id) {
     return true;
@@ -245,7 +242,7 @@ function operatorReportMatches(report: OperatorGameReport, game: UpcomingGame): 
     if (!homeHit || !awayHit) {
       return false;
     }
-    if (report.kickoffDateKey && kickoffDate(game.kickoffIso) !== report.kickoffDateKey) {
+    if (report.kickoffDateKey && kickoffDateKey(game.kickoffIso) !== report.kickoffDateKey) {
       return false;
     }
     return true;

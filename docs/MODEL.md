@@ -26,6 +26,10 @@ SRS from final scores remains a fallback when a club has no EPA card (typical FC
 
 Live NCAAF SRS is a **continuity blend**: last season's default SRS mixed with this season's default (shrunk) SRS. λ = 0.10 if the head coach changed, 0.60 if year-over-year net is within 6 points, 0.20 if the gap is 10+ (interpolated in between). The 2025 walk-forward / holdout still uses default NCAAF constants. Do not retune the profit gate from one weekend of 2026 results.
 
+**Agent A (availability)** is the only live overlay on top of that book. It maps typed injury/availability items into the existing `qbHome` / `qbAway` / `userHome` / `userAway` adjustments, then re-prices P vs S through the same profit gate. Scale: starting QB −3 to −7; WR1 / starting-rotation WR −1 to −2.5; edge rusher −1 to −2; OL starter −1 to −2. Doubtful is 50% of out. Questionable does not auto-price. Total overlay caps at 3 points unless a starting QB is out (then 7). Open→current is subtracted only when the market already moved with the injury; we never amplify because the number moved the other way. If the overlay would flip the posted side, the desk sits — it does not bet the other side from the news. Walk-forward does not see Agent A. Culture/social (Agent B) is not in the book.
+
+Operator reports go in `data/availability.json` (`reports[]` with `gameId` or home/away abbreviations, plus typed items: player, teamAbbreviation, positionGroup, status, sources, starter or snapsLast2, replacementQuality). ESPN’s college injury blob is scanned and date-gated; stale rows never overlay. ESPN rows without a starter flag or snaps are typed but not priced.
+
 ## Which book is S?
 
 The desk prices **one** posted number per game, not a shop:
@@ -48,7 +52,7 @@ Principle-driven, not fit to last week's losers:
 | SOS | Records are not probabilities | low |
 | Rest / bye | Modest point adjustment | medium |
 | Wind / dome | Totals first | medium |
-| QB availability | User-entered; model cannot see a late scratch | medium |
+| QB / starter availability | Agent A overlay into qb/user, capped; sit rather than flip | medium |
 | Residual / last-4 form | Shown, not auto-faded | high |
 
 ## Holdout
@@ -62,4 +66,4 @@ The profit rule sits on top of the trust filter: no moneylines, raw edge at leas
 
 ## What this is not
 
-It is not a closer, not an injury feed, not a same-game correlation model, and not advice. Fractional Kelly still loses if P is miscalibrated.
+It is not a closer, not a same-game correlation model, and not advice. Fractional Kelly still loses if P is miscalibrated. Agent A is a bounded availability overlay, not a full injury feed: only QB / WR / edge / OL, only Out/Doubtful, and only when usage (starter flag or snaps) is known.

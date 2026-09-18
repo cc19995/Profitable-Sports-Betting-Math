@@ -1,0 +1,295 @@
+{
+  "reports": [
+    {
+      "homeAbbreviation": "TTU",
+      "awayAbbreviation": "HOU",
+      "kickoffDateKey": "2026-09-18",
+      "items": [
+        {
+          "player": "Muizz Tounkara",
+          "teamAbbreviation": "HOU",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": false,
+          "snapsLast2": 0,
+          "replacementQuality": "average",
+          "sources": ["conference-report", "beat-writer"]
+        },
+        {
+          "player": "Jeffrey Strozier Jr.",
+          "teamAbbreviation": "HOU",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Stephon Johnson",
+          "teamAbbreviation": "HOU",
+          "positionGroup": "wr",
+          "status": "questionable",
+          "starter": true,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Elias Gillen",
+          "teamAbbreviation": "TTU",
+          "positionGroup": "ol",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report", "beat-writer"]
+        },
+        {
+          "player": "Trey White",
+          "teamAbbreviation": "TTU",
+          "positionGroup": "edge",
+          "status": "questionable",
+          "starter": true,
+          "sources": ["conference-report", "official-release"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "CLEM",
+      "awayAbbreviation": "UNC",
+      "kickoffDateKey": "2026-09-19",
+      "items": [
+        {
+          "player": "C.J. Sadler",
+          "teamAbbreviation": "UNC",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": true,
+          "snapsLast2": 55,
+          "replacementQuality": "capable",
+          "sources": ["conference-report", "official-release", "beat-writer"]
+        },
+        {
+          "player": "Keeyun Chapman",
+          "teamAbbreviation": "UNC",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": false,
+          "snapsLast2": 0,
+          "sources": ["conference-report", "official-release", "beat-writer"]
+        },
+        {
+          "player": "Carnell Warren",
+          "teamAbbreviation": "UNC",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Melkart Abou Jaoude",
+          "teamAbbreviation": "UNC",
+          "positionGroup": "edge",
+          "status": "questionable",
+          "starter": true,
+          "snapsLast2": 30,
+          "replacementQuality": "poor",
+          "sources": ["conference-report", "beat-writer"]
+        },
+        {
+          "player": "Jonah Rodriguez",
+          "teamAbbreviation": "UNC",
+          "positionGroup": "ol",
+          "status": "out",
+          "snapsLast2": 0,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Christopher Vizzina",
+          "teamAbbreviation": "CLEM",
+          "positionGroup": "qb",
+          "status": "probable",
+          "starter": true,
+          "snapsLast2": 80,
+          "replacementQuality": "capable",
+          "sources": ["conference-report", "official-release"]
+        },
+        {
+          "player": "Cole Turner",
+          "teamAbbreviation": "CLEM",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "UCLA",
+      "awayAbbreviation": "PUR",
+      "kickoffDateKey": "2026-09-19",
+      "items": [
+        {
+          "player": "Mikey Matthews",
+          "teamAbbreviation": "UCLA",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": true,
+          "snapsLast2": 70,
+          "replacementQuality": "capable",
+          "sources": ["conference-report", "beat-writer"]
+        },
+        {
+          "player": "Jonah Smith",
+          "teamAbbreviation": "UCLA",
+          "positionGroup": "wr",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Sam Yoon",
+          "teamAbbreviation": "UCLA",
+          "positionGroup": "ol",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Mack Indestad",
+          "teamAbbreviation": "UCLA",
+          "positionGroup": "ol",
+          "status": "out",
+          "starter": false,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Aidan Mizell",
+          "teamAbbreviation": "UCLA",
+          "positionGroup": "wr",
+          "status": "questionable",
+          "starter": false,
+          "snapsLast2": 15,
+          "sources": ["conference-report"]
+        },
+        {
+          "player": "Joey Tanona",
+          "teamAbbreviation": "PUR",
+          "positionGroup": "ol",
+          "status": "doubtful",
+          "starter": true,
+          "snapsLast2": 0,
+          "replacementQuality": "capable",
+          "sources": ["conference-report", "official-release"]
+        },
+        {
+          "player": "Elo Modozie",
+          "teamAbbreviation": "PUR",
+          "positionGroup": "edge",
+          "status": "questionable",
+          "starter": false,
+          "sources": ["conference-report"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "VAN",
+      "awayAbbreviation": "NCSU",
+      "kickoffDateKey": "2026-09-19",
+      "items": [
+        {
+          "player": "Brian Allen Jr.",
+          "teamAbbreviation": "VAN",
+          "positionGroup": "edge",
+          "status": "probable",
+          "starter": true,
+          "sources": ["official-release"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "TOL",
+      "awayAbbreviation": "TEM",
+      "kickoffDateKey": "2026-09-19",
+      "items": [
+        {
+          "player": "Kevin Terry",
+          "teamAbbreviation": "TEM",
+          "positionGroup": "ol",
+          "status": "questionable",
+          "starter": true,
+          "sources": ["beat-writer"]
+        },
+        {
+          "player": "Eric King",
+          "teamAbbreviation": "TEM",
+          "positionGroup": "ol",
+          "status": "questionable",
+          "starter": true,
+          "sources": ["beat-writer"]
+        },
+        {
+          "player": "Luke Watson",
+          "teamAbbreviation": "TEM",
+          "positionGroup": "ol",
+          "status": "out",
+          "snapsLast2": 0,
+          "sources": ["beat-writer"]
+        },
+        {
+          "player": "Glakoby Hills",
+          "teamAbbreviation": "TEM",
+          "positionGroup": "ol",
+          "status": "out",
+          "snapsLast2": 0,
+          "sources": ["beat-writer"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "OSU",
+      "awayAbbreviation": "KENT",
+      "kickoffDateKey": "2026-09-19",
+      "items": [
+        {
+          "player": "Phillip Daniels",
+          "teamAbbreviation": "OSU",
+          "positionGroup": "ol",
+          "status": "doubtful",
+          "starter": true,
+          "snapsLast2": 90,
+          "replacementQuality": "capable",
+          "sources": ["official-release", "beat-writer"]
+        },
+        {
+          "player": "Zion Grady",
+          "teamAbbreviation": "OSU",
+          "positionGroup": "edge",
+          "status": "doubtful",
+          "starter": true,
+          "snapsLast2": 70,
+          "replacementQuality": "capable",
+          "sources": ["official-release", "beat-writer"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "SDSU",
+      "awayAbbreviation": "JMU",
+      "kickoffDateKey": "2026-09-19",
+      "items": [
+        {
+          "player": "JC Evans",
+          "teamAbbreviation": "JMU",
+          "positionGroup": "qb",
+          "status": "out",
+          "starter": true,
+          "snapsLast2": 55,
+          "replacementQuality": "capable",
+          "sources": ["official-release", "beat-writer"]
+        }
+      ]
+    },
+    {
+      "homeAbbreviation": "DEL",
+      "awayAbbreviation": "CCU",
+      "kickoffDateKey": "2026-09-19",
+      "items": []
+    }
+  ]
+}

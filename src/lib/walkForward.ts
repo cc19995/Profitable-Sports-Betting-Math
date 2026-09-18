@@ -122,7 +122,8 @@ export function walkForwardBets(
     if (history.length < minHistory) {
       continue;
     }
-    // Holdout stays on default league constants. Do not pass blendLiveNcaafRatings.
+    // Holdout stays on default league constants. Do not pass blendLiveNcaafRatings
+    // or the Agent A availability overlay.
     const ratings = fitTeamRatings(history, league);
     const rated = new Map(ratings.map((row) => [row.team.id, row]));
     for (const game of holdout.filter((row) => row.week === week)) {

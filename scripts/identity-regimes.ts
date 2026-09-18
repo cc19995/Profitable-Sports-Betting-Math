@@ -3,7 +3,8 @@
  * Read-only analysis. Does not change live ratings.
  */
 import { attachRestDays, dedupeGames, fetchEspnSeason, isCompletedGame } from "@/src/data/espn";
-import { fitTeamRatings, NCAAF_IN_SEASON_FIT } from "@/src/lib/ratings";
+import { blendLiveNcaafRatings, continuityDecision } from "@/src/lib/ncaafIdentity";
+import { fitTeamRatings } from "@/src/lib/ratings";
 import type { CompletedGame, TeamRating } from "@/src/lib/types";
 
 const NOTABLE = [
@@ -34,7 +35,7 @@ async function main(): Promise<void> {
 
   const y2025 = byAbbr(fitTeamRatings(prior, "ncaaf"));
   const y2026 = byAbbr(fitTeamRatings(current, "ncaaf"));
-  const blended = byAbbr(fitTeamRatings(both, "ncaaf", NCAAF_IN_SEASON_FIT));
+  const blended = byAbbr(blendLiveNcaafRatings(both));
   const sticky = byAbbr(fitTeamRatings(both, "ncaaf"));
 
   const rows = NOTABLE.flatMap((abbr) => {
@@ -45,26 +46,30 @@ async function main(): Promise<void> {
     if (priorNet === null || nowNet === null || blendNet === null || stickyNet === null) {
       return [];
     }
-    const delta = nowNet - priorNet;
-    const n2026 = y2026.get(abbr)?.games ?? 0;
-    let regime: "confirmed" | "rejected" | "exploded" | "collapsed";
-    if (Math.abs(delta) <= 6) {
-      regime = "confirmed";
-    } else if (delta >= 12) {
-      regime = "exploded";
-    } else if (delta <= -12) {
-      regime = "collapsed";
-    } else {
-      regime = "rejected";
-    }
-    return [{ abbr, n2026, priorNet, nowNet, delta, blendNet, stickyNet, regime }];
+    const decision = continuityDecision({
+      abbreviation: abbr,
+      season: year,
+      priorNet,
+      observedNet: nowNet,
+    });
+    return [{
+      abbr,
+      n2026: y2026.get(abbr)?.games ?? 0,
+      priorNet,
+      nowNet,
+      delta: nowNet - priorNet,
+      blendNet,
+      stickyNet,
+      lambda: decision.lambda,
+      reason: decision.reason,
+    }];
   });
 
   rows.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
-  console.log("abbr n26  2025  2026  dYoy  blend sticky regime");
+  console.log("abbr n26  2025  2026  dYoy  λ    reason     blend sticky");
   for (const row of rows) {
     console.log(
-      `${row.abbr.padEnd(5)} ${String(row.n2026).padStart(3)}  ${row.priorNet.toFixed(1).padStart(5)} ${row.nowNet.toFixed(1).padStart(6)} ${row.delta.toFixed(1).padStart(6)} ${row.blendNet.toFixed(1).padStart(6)} ${row.stickyNet.toFixed(1).padStart(6)} ${row.regime}`,
+      `${row.abbr.padEnd(5)} ${String(row.n2026).padStart(3)}  ${row.priorNet.toFixed(1).padStart(5)} ${row.nowNet.toFixed(1).padStart(6)} ${row.delta.toFixed(1).padStart(6)} ${row.lambda.toFixed(2)} ${row.reason.padEnd(10)} ${row.blendNet.toFixed(1).padStart(6)} ${row.stickyNet.toFixed(1).padStart(6)}`,
     );
   }
 }

@@ -7,6 +7,7 @@ export * from "./picks";
 export * from "./normal";
 export * from "./league";
 export * from "./ratings";
+export * from "./ncaafIdentity";
 export * from "./keyNumbers";
 export * from "./adjustments";
 export * from "./features";

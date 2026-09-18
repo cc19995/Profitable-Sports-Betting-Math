@@ -1,7 +1,8 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pickQuality, selectTrustedBestBet } from "@/src/lib/picks";
-import { fitTeamRatings, NCAAF_IN_SEASON_FIT, type RatingFitOptions } from "@/src/lib/ratings";
+import { blendLiveNcaafRatings } from "@/src/lib/ncaafIdentity";
+import { fitTeamRatings } from "@/src/lib/ratings";
 import { inferHoldoutSeason, summarizeWalkForward, walkForwardBets } from "@/src/lib/walkForward";
 import { handicapMatchup } from "@/src/lib/matchup";
 import { getHouseModel } from "@/src/lib/rithmm/house";
@@ -71,9 +72,11 @@ function buildBoard(args: {
   completed: CompletedGame[];
   factorStore?: FactorStore;
   priceWithHouse?: boolean;
-  ratingFit?: RatingFitOptions;
+  fitRatings?: (games: CompletedGame[]) => ReturnType<typeof fitTeamRatings>;
 }): LeagueSnapshot {
-  const ratings = fitTeamRatings(args.completed, args.league, args.ratingFit);
+  const ratings = args.fitRatings
+    ? args.fitRatings(args.completed)
+    : fitTeamRatings(args.completed, args.league);
   const rated = new Map(ratings.map((row) => [row.team.id, row]));
   const minGames = args.league === "nfl" ? 8 : 6;
   const factorLookup = args.factorStore?.lookup;
@@ -185,7 +188,7 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
     completed: completedOnly(all),
     factorStore,
     priceWithHouse: false,
-    ratingFit: NCAAF_IN_SEASON_FIT,
+    fitRatings: blendLiveNcaafRatings,
   });
   snapshot.backtest = summarizeWalkForward(
     walkForwardBets(completedOnly(all), "ncaaf", {

@@ -9,17 +9,6 @@ export type RatingFitOptions = {
   shrinkageK?: number;
 };
 
-/**
- * Live NCAAF identity fit. Current-season games carry almost all of the
- * rating. 2025 holdout / walk-forward still uses the default constants.
- */
-export const NCAAF_IN_SEASON_FIT: RatingFitOptions = {
-  currentSeasonEmphasis: 12,
-  priorRetention: 0.15,
-  recencyHalfLifeGames: 2,
-  shrinkageK: 0.75,
-};
-
 function assertPositive(name: string, value: number): number {
   const n = assertFiniteNumber(value, name);
   if (n <= 0) {

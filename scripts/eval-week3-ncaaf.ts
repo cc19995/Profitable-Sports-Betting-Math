@@ -7,7 +7,8 @@ import path from "node:path";
 import { attachRestDays, dedupeGames, fetchEspnScoreboard, fetchEspnSeason, isCompletedGame } from "@/src/data/espn";
 import { loadCfbFactorStore } from "@/src/data/cfbFactors";
 import { handicapMatchup, isActionable, isTrustEligible } from "@/src/lib/matchup";
-import { fitTeamRatings, NCAAF_IN_SEASON_FIT } from "@/src/lib/ratings";
+import { fitTeamRatings } from "@/src/lib/ratings";
+import { blendLiveNcaafRatings, continuityDecision } from "@/src/lib/ncaafIdentity";
 import { isProfitEligible } from "@/src/lib/profit";
 import { alignmentFromGaps } from "@/src/lib/rithmm/signals";
 import { totalProbabilities } from "@/src/lib/keyNumbers";
@@ -64,20 +65,32 @@ async function main(): Promise<void> {
   const upcoming = upcomingOnly(all);
   console.error(`completed=${completed.length} upcoming=${upcoming.length}`);
   const defaultRatings = fitTeamRatings(completed, "ncaaf");
-  const ratings = fitTeamRatings(completed, "ncaaf", NCAAF_IN_SEASON_FIT);
+  const ratings = blendLiveNcaafRatings(completed);
+  const priorOnly = fitTeamRatings(completed.filter((game) => game.season === year - 1), "ncaaf");
+  const currentOnly = fitTeamRatings(completed.filter((game) => game.season === year), "ncaaf");
   const notable = ["CLEM", "TULN", "MISS", "LSU", "FSU", "ALA", "TA&M", "UK", "LOU", "SMU", "AUB", "FLA", "DUKE", "STAN", "SC", "MSST", "UVA", "WVU", "MD", "VT", "NU", "COLO", "UCLA", "PUR", "OU"];
   const defaultByAbbr = new Map(defaultRatings.map((row) => [row.team.abbreviation, row]));
   const liveByAbbr = new Map(ratings.map((row) => [row.team.abbreviation, row]));
+  const priorByAbbr = new Map(priorOnly.map((row) => [row.team.abbreviation, row]));
+  const currentByAbbr = new Map(currentOnly.map((row) => [row.team.abbreviation, row]));
   console.log("IDENTITY_SHIFTS");
   for (const abbr of notable) {
-    const prior = defaultByAbbr.get(abbr);
+    const sticky = defaultByAbbr.get(abbr);
     const live = liveByAbbr.get(abbr);
-    if (!prior || !live) {
+    const y2025 = priorByAbbr.get(abbr);
+    const y2026 = currentByAbbr.get(abbr);
+    if (!sticky || !live) {
       console.log(`  ${abbr} missing`);
       continue;
     }
+    const decision = continuityDecision({
+      abbreviation: abbr,
+      season: year,
+      priorNet: y2025?.net,
+      observedNet: y2026?.net,
+    });
     console.log(
-      `  ${abbr} net ${prior.net.toFixed(1)} -> ${live.net.toFixed(1)} (d ${(live.net - prior.net).toFixed(1)})  off ${prior.offense.toFixed(1)}->${live.offense.toFixed(1)}  def ${prior.defense.toFixed(1)}->${live.defense.toFixed(1)}`,
+      `  ${abbr} ${decision.reason} λ=${decision.lambda.toFixed(2)}  2025 ${y2025 ? y2025.net.toFixed(1) : "n/a"}  2026 ${y2026 ? y2026.net.toFixed(1) : "n/a"}  blend ${live.net.toFixed(1)}  sticky ${sticky.net.toFixed(1)}`,
     );
   }
   const factorStore = await loadCfbFactorStore([year - 2, year - 1, year]).catch((error: unknown) => {

@@ -2,12 +2,15 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pickQuality, selectTrustedBestBet } from "@/src/lib/picks";
 import { blendLiveNcaafRatings } from "@/src/lib/ncaafIdentity";
+import { priceNcaafGameWithAvailability } from "@/src/lib/availabilityDesk";
 import { fitTeamRatings } from "@/src/lib/ratings";
 import { inferHoldoutSeason, summarizeWalkForward, walkForwardBets } from "@/src/lib/walkForward";
 import { handicapMatchup } from "@/src/lib/matchup";
 import { getHouseModel } from "@/src/lib/rithmm/house";
 import type { FactorStore } from "@/src/lib/rithmm/store";
+import type { AvailabilityItem } from "@/src/lib/availability";
 import type { CompletedGame, League, UpcomingGame } from "@/src/lib/types";
+import { loadNcaafAvailabilityItems } from "./availabilityFeed";
 import { attachRestDays, dedupeGames, fetchEspnScoreboard, fetchEspnSeason, isCompletedGame } from "./espn";
 import { attachHistoricalClosingOdds } from "./espnOdds";
 import { loadCfbFactorStore } from "./cfbFactors";
@@ -73,6 +76,7 @@ function buildBoard(args: {
   factorStore?: FactorStore;
   priceWithHouse?: boolean;
   fitRatings?: (games: CompletedGame[]) => ReturnType<typeof fitTeamRatings>;
+  availabilityByGame?: Map<string, AvailabilityItem[]>;
 }): LeagueSnapshot {
   const ratings = args.fitRatings
     ? args.fitRatings(args.completed)
@@ -94,6 +98,15 @@ function buildBoard(args: {
       );
     })
     .map((game) => {
+      if (args.league === "ncaaf") {
+        return priceNcaafGameWithAvailability({
+          game,
+          ratings,
+          items: args.availabilityByGame?.get(game.id) ?? [],
+          factorLookup,
+          priceWithHouse: args.priceWithHouse,
+        });
+      }
       const report = handicapMatchup({
         game,
         ratings,
@@ -182,13 +195,19 @@ export async function refreshNcaaf(): Promise<LeagueSnapshot> {
     console.warn("NCAAF EPA factors unavailable:", error instanceof Error ? error.message : error);
     return undefined;
   });
+  const upcoming = upcomingOnly(all);
+  const availabilityByGame = await loadNcaafAvailabilityItems(upcoming).catch((error: unknown) => {
+    console.warn("NCAAF availability overlay unavailable:", error instanceof Error ? error.message : error);
+    return undefined;
+  });
   const snapshot = buildBoard({
     league: "ncaaf",
-    upcoming: upcomingOnly(all),
+    upcoming,
     completed: completedOnly(all),
     factorStore,
     priceWithHouse: false,
     fitRatings: blendLiveNcaafRatings,
+    availabilityByGame,
   });
   snapshot.backtest = summarizeWalkForward(
     walkForwardBets(completedOnly(all), "ncaaf", {

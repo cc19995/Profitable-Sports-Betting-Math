@@ -224,9 +224,9 @@ export function statsThatMatter(): Array<{ stat: string; why: string; howUsed: s
       overfitRisk: "low",
     },
     {
-      stat: "QB availability (user-entered)",
-      why: "The largest single-player variance in football. The model cannot see a late scratch unless you enter it.",
-      howUsed: "Manual point adjustment on the lab / matchup form.",
+      stat: "QB / starter availability (Agent A)",
+      why: "The largest single-player variance in football. SRS cannot see a late scratch.",
+      howUsed: "Typed overlay into qb/user point adjustments on the live NCAAF desk. Capped. Sit rather than flip.",
       overfitRisk: "medium",
     },
     {

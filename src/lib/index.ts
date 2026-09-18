@@ -8,6 +8,8 @@ export * from "./normal";
 export * from "./league";
 export * from "./ratings";
 export * from "./ncaafIdentity";
+export * from "./availability";
+export * from "./availabilityDesk";
 export * from "./keyNumbers";
 export * from "./adjustments";
 export * from "./features";

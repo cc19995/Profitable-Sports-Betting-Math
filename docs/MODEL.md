@@ -24,6 +24,8 @@ NFL and NCAAF are **separate House models** in the Rithmm layout: statistics →
 
 SRS from final scores remains a fallback when a club has no EPA card (typical FCS / thin sample). Live Best Bets stay NCAAF-only until the NFL House holdout is positive.
 
+Live NCAAF SRS uses an **in-season identity fit** (`NCAAF_IN_SEASON_FIT`): current-season games are weighted 12×, prior-year retention is 0.15, recency half-life is 2 games, shrinkage K is 0.75. That is so this year's tape dominates 2024–25 priors. The 2025 walk-forward / holdout still uses default NCAAF constants. Do not retune the profit gate from one weekend of 2026 results.
+
 ## Which book is S?
 
 The desk prices **one** posted number per game, not a shop:

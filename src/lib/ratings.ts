@@ -2,6 +2,53 @@ import { getLeagueConstants } from "./league";
 import { assertFiniteNumber } from "./odds";
 import type { CompletedGame, League, TeamRating, TeamRef } from "./types";
 
+export type RatingFitOptions = {
+  currentSeasonEmphasis?: number;
+  priorRetention?: number;
+  recencyHalfLifeGames?: number;
+  shrinkageK?: number;
+};
+
+/**
+ * Live NCAAF identity fit. Current-season games carry almost all of the
+ * rating. 2025 holdout / walk-forward still uses the default constants.
+ */
+export const NCAAF_IN_SEASON_FIT: RatingFitOptions = {
+  currentSeasonEmphasis: 12,
+  priorRetention: 0.15,
+  recencyHalfLifeGames: 2,
+  shrinkageK: 0.75,
+};
+
+function assertPositive(name: string, value: number): number {
+  const n = assertFiniteNumber(value, name);
+  if (n <= 0) {
+    throw new Error(`${name} must be positive`);
+  }
+  return n;
+}
+
+function resolveFit(league: League, options?: RatingFitOptions): {
+  priorRetention: number;
+  recencyHalfLifeGames: number;
+  shrinkageK: number;
+  currentSeasonEmphasis: number;
+} {
+  const constants = getLeagueConstants(league);
+  const currentSeasonEmphasis = options?.currentSeasonEmphasis ?? 1;
+  const priorRetention = options?.priorRetention ?? constants.priorRetention;
+  const recencyHalfLifeGames = options?.recencyHalfLifeGames ?? constants.recencyHalfLifeGames;
+  const shrinkageK = options?.shrinkageK ?? constants.shrinkageK;
+  assertPositive("currentSeasonEmphasis", currentSeasonEmphasis);
+  assertPositive("priorRetention", priorRetention);
+  if (priorRetention > 1) {
+    throw new Error("priorRetention cannot exceed 1");
+  }
+  assertPositive("recencyHalfLifeGames", recencyHalfLifeGames);
+  assertPositive("shrinkageK", shrinkageK);
+  return { currentSeasonEmphasis, priorRetention, recencyHalfLifeGames, shrinkageK };
+}
+
 const MAX_ITERATIONS = 40;
 const TOLERANCE = 1e-4;
 
@@ -33,11 +80,16 @@ function shrink(raw: number, n: number, k: number): number {
   return (n / (n + k)) * raw;
 }
 
-export function fitTeamRatings(games: CompletedGame[], league: League): TeamRating[] {
+export function fitTeamRatings(
+  games: CompletedGame[],
+  league: League,
+  options?: RatingFitOptions,
+): TeamRating[] {
   if (!Array.isArray(games)) {
     throw new Error("games must be an array");
   }
   const constants = getLeagueConstants(league);
+  const fit = resolveFit(league, options);
   const leagueGames = games
     .filter((game) => game.league === league && Number.isFinite(game.homeScore) && Number.isFinite(game.awayScore))
     .slice()
@@ -104,11 +156,12 @@ export function fitTeamRatings(games: CompletedGame[], league: League): TeamRati
         continue;
       }
       const hfa = game.neutralSite ? 0 : constants.homeFieldAdvantage;
-      const seasonDecay = Math.pow(constants.priorRetention, Math.max(0, latestSeason - game.season));
-      const homeRecency = game.season === latestSeason ? gameWeight(homeAgo, constants.recencyHalfLifeGames) : 1;
-      const awayRecency = game.season === latestSeason ? gameWeight(awayAgo, constants.recencyHalfLifeGames) : 1;
-      const homeWeight = homeRecency * seasonDecay;
-      const awayWeight = awayRecency * seasonDecay;
+      const seasonDecay = Math.pow(fit.priorRetention, Math.max(0, latestSeason - game.season));
+      const currentBoost = game.season === latestSeason ? fit.currentSeasonEmphasis : 1;
+      const homeRecency = game.season === latestSeason ? gameWeight(homeAgo, fit.recencyHalfLifeGames) : 1;
+      const awayRecency = game.season === latestSeason ? gameWeight(awayAgo, fit.recencyHalfLifeGames) : 1;
+      const homeWeight = homeRecency * seasonDecay * currentBoost;
+      const awayWeight = awayRecency * seasonDecay * currentBoost;
 
       const homeOffObs = game.homeScore - constants.averageTeamScore + away.defense - hfa;
       const awayOffObs = game.awayScore - constants.averageTeamScore + home.defense;
@@ -127,8 +180,8 @@ export function fitTeamRatings(games: CompletedGame[], league: League): TeamRati
       const defAcc = nextDef.get(team.team.id);
       const offRaw = offAcc && offAcc.weight > 0 ? offAcc.sum / offAcc.weight : 0;
       const defRaw = defAcc && defAcc.weight > 0 ? defAcc.sum / defAcc.weight : 0;
-      const off = shrink(offRaw, offAcc?.weight ?? 0, constants.shrinkageK);
-      const def = shrink(defRaw, defAcc?.weight ?? 0, constants.shrinkageK);
+      const off = shrink(offRaw, offAcc?.weight ?? 0, fit.shrinkageK);
+      const def = shrink(defRaw, defAcc?.weight ?? 0, fit.shrinkageK);
       maxDelta = Math.max(maxDelta, Math.abs(off - team.offense), Math.abs(def - team.defense));
       team.offense = off;
       team.defense = def;
